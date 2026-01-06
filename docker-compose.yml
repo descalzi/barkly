@@ -1,0 +1,36 @@
+services:
+  barkly:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: barkly
+    ports:
+      - "8083:8080"
+    volumes:
+      - barkly-data:/app/data
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=sqlite:///./data/barkly.db
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_ORIGINS=https://chunkyboy.reindeer-great.ts.net,http://localhost:8083
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+      # Router for path-based routing at /barkly
+      - "traefik.http.routers.barkly.rule=Host(`chunkyboy.reindeer-great.ts.net`) && PathPrefix(`/barkly`)"
+      - "traefik.http.routers.barkly.entrypoints=web,websecure"
+      - "traefik.http.routers.barkly.tls=true"
+      # Service configuration
+      - "traefik.http.services.barkly.loadbalancer.server.port=8080"
+      - "traefik.docker.network=traefik-network"
+
+volumes:
+  barkly-data:
+
+networks:
+  traefik-network:
+    external: true
