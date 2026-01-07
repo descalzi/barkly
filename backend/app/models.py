@@ -119,11 +119,39 @@ class Medicine(MedicineBase):
         from_attributes = True
 
 
+# Custom Event models
+class CustomEventBase(BaseModel):
+    """Base custom event model"""
+    name: str
+
+
+class CustomEventCreate(CustomEventBase):
+    """Custom event creation model"""
+    pass
+
+
+class CustomEventUpdate(BaseModel):
+    """Custom event update model - all fields optional"""
+    name: Optional[str] = None
+
+
+class CustomEvent(CustomEventBase):
+    """Custom event response model"""
+    id: str
+    user_id: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 # Event models
 class EventBase(BaseModel):
     """Base event model"""
     dog_id: str
-    event_type: EventType
+    event_type: Optional[EventType] = None
+    custom_event_id: Optional[str] = None
     date: datetime
     time_of_day: TimeOfDay
     poo_quality: Optional[int] = None  # 1-7 for Poo events
@@ -140,6 +168,7 @@ class EventUpdate(BaseModel):
     """Event update model - all fields optional"""
     dog_id: Optional[str] = None
     event_type: Optional[EventType] = None
+    custom_event_id: Optional[str] = None
     date: Optional[datetime] = None
     time_of_day: Optional[TimeOfDay] = None
     poo_quality: Optional[int] = None

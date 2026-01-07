@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import auth, dogs, vets, medicines, upload
+from app.api import auth, dogs, vets, medicines, upload, events, vet_visits, medicine_events, custom_events
 from app.database import init_db
 import os
 
@@ -29,6 +29,10 @@ app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(dogs.router, prefix="/api/dogs", tags=["Dogs"])
 app.include_router(vets.router, prefix="/api/vets", tags=["Vets"])
 app.include_router(medicines.router, prefix="/api/medicines", tags=["Medicines"])
+app.include_router(custom_events.router, prefix="/api/custom-events", tags=["Custom Events"])
+app.include_router(events.router, prefix="/api/events", tags=["Events"])
+app.include_router(vet_visits.router, prefix="/api/vet-visits", tags=["Vet Visits"])
+app.include_router(medicine_events.router, prefix="/api/medicine-events", tags=["Medicine Events"])
 app.include_router(upload.router, prefix="/api/upload", tags=["Upload"])
 
 

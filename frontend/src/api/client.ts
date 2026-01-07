@@ -11,6 +11,18 @@ import {
   Medicine,
   MedicineCreate,
   MedicineUpdate,
+  Event,
+  EventCreate,
+  EventUpdate,
+  VetVisit,
+  VetVisitCreate,
+  VetVisitUpdate,
+  MedicineEvent,
+  MedicineEventCreate,
+  MedicineEventUpdate,
+  CustomEvent,
+  CustomEventCreate,
+  CustomEventUpdate,
   UploadResponse
 } from '../types';
 import { getAuthHeader } from '../utils/auth';
@@ -33,16 +45,16 @@ const getApiUrl = (): string => {
 
   // 3. Tailscale: http://hostname:8000
   if (hostname.includes('ts.net')) {
-    return `http://${hostname}:8000`;
+    return `http://${hostname}:8005`;
   }
 
   // 4. Local IP: http://192.168.x.x:8000
   if (hostname.match(/^\d+\.\d+\.\d+\.\d+$/)) {
-    return `http://${hostname}:8000`;
+    return `http://${hostname}:8005`;
   }
 
   // 5. Default: http://localhost:8000
-  return 'http://localhost:8000';
+  return 'http://localhost:8005';
 };
 
 const API_URL = getApiUrl();
@@ -247,18 +259,158 @@ export const apiClient = {
     },
   },
 
-  // Event endpoints (Phase 4+)
+  // Event endpoints
   events: {
-    // TODO: Implement in Phase 4
+    getAll: (dogId?: string): Promise<Event[]> => {
+      const params = dogId ? `?dog_id=${dogId}` : '';
+      return apiFetch<Event[]>(`/api/events${params}`, {
+        headers: getAuthHeader(),
+      });
+    },
+
+    getById: (id: string): Promise<Event> => {
+      return apiFetch<Event>(`/api/events/${id}`, {
+        headers: getAuthHeader(),
+      });
+    },
+
+    create: (event: EventCreate): Promise<Event> => {
+      return apiFetch<Event>('/api/events', {
+        method: 'POST',
+        headers: getAuthHeader(),
+        body: JSON.stringify(event),
+      });
+    },
+
+    update: (id: string, event: EventUpdate): Promise<Event> => {
+      return apiFetch<Event>(`/api/events/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeader(),
+        body: JSON.stringify(event),
+      });
+    },
+
+    delete: (id: string): Promise<void> => {
+      return apiFetch<void>(`/api/events/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeader(),
+      });
+    },
   },
 
-  // Vet Visit endpoints (Phase 4+)
+  // Vet Visit endpoints
   vetVisits: {
-    // TODO: Implement in Phase 4
+    getAll: (dogId?: string): Promise<VetVisit[]> => {
+      const params = dogId ? `?dog_id=${dogId}` : '';
+      return apiFetch<VetVisit[]>(`/api/vet-visits${params}`, {
+        headers: getAuthHeader(),
+      });
+    },
+
+    getById: (id: string): Promise<VetVisit> => {
+      return apiFetch<VetVisit>(`/api/vet-visits/${id}`, {
+        headers: getAuthHeader(),
+      });
+    },
+
+    create: (vetVisit: VetVisitCreate): Promise<VetVisit> => {
+      return apiFetch<VetVisit>('/api/vet-visits', {
+        method: 'POST',
+        headers: getAuthHeader(),
+        body: JSON.stringify(vetVisit),
+      });
+    },
+
+    update: (id: string, vetVisit: VetVisitUpdate): Promise<VetVisit> => {
+      return apiFetch<VetVisit>(`/api/vet-visits/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeader(),
+        body: JSON.stringify(vetVisit),
+      });
+    },
+
+    delete: (id: string): Promise<void> => {
+      return apiFetch<void>(`/api/vet-visits/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeader(),
+      });
+    },
   },
 
-  // Medicine Event endpoints (Phase 4+)
+  // Medicine Event endpoints
   medicineEvents: {
-    // TODO: Implement in Phase 4
+    getAll: (dogId?: string): Promise<MedicineEvent[]> => {
+      const params = dogId ? `?dog_id=${dogId}` : '';
+      return apiFetch<MedicineEvent[]>(`/api/medicine-events${params}`, {
+        headers: getAuthHeader(),
+      });
+    },
+
+    getById: (id: string): Promise<MedicineEvent> => {
+      return apiFetch<MedicineEvent>(`/api/medicine-events/${id}`, {
+        headers: getAuthHeader(),
+      });
+    },
+
+    create: (medicineEvent: MedicineEventCreate): Promise<MedicineEvent> => {
+      return apiFetch<MedicineEvent>('/api/medicine-events', {
+        method: 'POST',
+        headers: getAuthHeader(),
+        body: JSON.stringify(medicineEvent),
+      });
+    },
+
+    update: (id: string, medicineEvent: MedicineEventUpdate): Promise<MedicineEvent> => {
+      return apiFetch<MedicineEvent>(`/api/medicine-events/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeader(),
+        body: JSON.stringify(medicineEvent),
+      });
+    },
+
+    delete: (id: string): Promise<void> => {
+      return apiFetch<void>(`/api/medicine-events/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeader(),
+      });
+    },
+  },
+
+  // Custom Event endpoints
+  customEvents: {
+    getAll: (): Promise<CustomEvent[]> => {
+      return apiFetch<CustomEvent[]>('/api/custom-events', {
+        headers: getAuthHeader(),
+      });
+    },
+
+    getById: (id: string): Promise<CustomEvent> => {
+      return apiFetch<CustomEvent>(`/api/custom-events/${id}`, {
+        headers: getAuthHeader(),
+      });
+    },
+
+    create: (customEvent: CustomEventCreate): Promise<CustomEvent> => {
+      return apiFetch<CustomEvent>('/api/custom-events', {
+        method: 'POST',
+        headers: getAuthHeader(),
+        body: JSON.stringify(customEvent),
+      });
+    },
+
+    update: (id: string, customEvent: CustomEventUpdate): Promise<CustomEvent> => {
+      return apiFetch<CustomEvent>(`/api/custom-events/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeader(),
+        body: JSON.stringify(customEvent),
+      });
+    },
+
+    delete: (id: string): Promise<void> => {
+      return apiFetch<void>(`/api/custom-events/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeader(),
+      });
+    },
   },
 };

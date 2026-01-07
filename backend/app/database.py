@@ -30,6 +30,7 @@ class EventType(str, enum.Enum):
     NAUSEA = "Nausea"
     ITCHY = "Itchy"
     GRASS_MUNCHING = "Grass Munching"
+    INJURY = "Injury"
     OTHER = "Other"
 
 
@@ -63,6 +64,7 @@ class DBUser(Base):
     dogs = relationship("DBDog", back_populates="user", cascade="all, delete-orphan")
     vets = relationship("DBVet", back_populates="user", cascade="all, delete-orphan")
     medicines = relationship("DBMedicine", back_populates="user", cascade="all, delete-orphan")
+    custom_events = relationship("DBCustomEvent", back_populates="user", cascade="all, delete-orphan")
 
 
 class DBDog(Base):
@@ -117,13 +119,29 @@ class DBMedicine(Base):
     medicine_events = relationship("DBMedicineEvent", back_populates="medicine", cascade="all, delete-orphan")
 
 
+class DBCustomEvent(Base):
+    """Custom Event model - stores user-defined event types"""
+    __tablename__ = "custom_events"
+
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    name = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    # Relationships
+    user = relationship("DBUser", back_populates="custom_events")
+    events = relationship("DBEvent", back_populates="custom_event", cascade="all, delete-orphan")
+
+
 class DBEvent(Base):
     """Event model - stores health events for dogs"""
     __tablename__ = "events"
 
     id = Column(String, primary_key=True, index=True)
     dog_id = Column(String, ForeignKey("dogs.id"), nullable=False, index=True)
-    event_type = Column(SQLEnum(EventType), nullable=False)
+    event_type = Column(SQLEnum(EventType), nullable=True)  # Nullable for custom events
+    custom_event_id = Column(String, ForeignKey("custom_events.id"), nullable=True, index=True)  # For custom events
     date = Column(DateTime, nullable=False, index=True)
     time_of_day = Column(SQLEnum(TimeOfDay), nullable=False)
 
@@ -139,6 +157,7 @@ class DBEvent(Base):
 
     # Relationships
     dog = relationship("DBDog", back_populates="events")
+    custom_event = relationship("DBCustomEvent", back_populates="events")
 
 
 class DBVetVisit(Base):

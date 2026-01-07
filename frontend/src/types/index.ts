@@ -36,6 +36,7 @@ export enum EventType {
   NAUSEA = 'Nausea',
   ITCHY = 'Itchy',
   GRASS_MUNCHING = 'Grass Munching',
+  INJURY = 'Injury',
   OTHER = 'Other',
 }
 
@@ -73,11 +74,12 @@ export interface DogUpdate {
   profile_picture?: string;
 }
 
-// Event type (for Phase 4+)
+// Event types
 export interface Event {
   id: string;
   dog_id: string;
-  event_type: EventType;
+  event_type?: EventType;
+  custom_event_id?: string;
   date: string;
   time_of_day: TimeOfDay;
   poo_quality?: number; // 1-7
@@ -85,6 +87,28 @@ export interface Event {
   notes?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface EventCreate {
+  dog_id: string;
+  event_type?: EventType;
+  custom_event_id?: string;
+  date: string;
+  time_of_day: TimeOfDay;
+  poo_quality?: number;
+  vomit_quality?: VomitQuality;
+  notes?: string;
+}
+
+export interface EventUpdate {
+  dog_id?: string;
+  event_type?: EventType;
+  custom_event_id?: string;
+  date?: string;
+  time_of_day?: TimeOfDay;
+  poo_quality?: number;
+  vomit_quality?: VomitQuality;
+  notes?: string;
 }
 
 // Vet types
@@ -110,7 +134,7 @@ export interface VetUpdate {
   notes?: string;
 }
 
-// Vet Visit type (for Phase 4+)
+// Vet Visit types
 export interface VetVisit {
   id: string;
   dog_id: string;
@@ -120,6 +144,22 @@ export interface VetVisit {
   notes?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface VetVisitCreate {
+  dog_id: string;
+  vet_id: string;
+  date: string;
+  time_of_day: TimeOfDay;
+  notes?: string;
+}
+
+export interface VetVisitUpdate {
+  dog_id?: string;
+  vet_id?: string;
+  date?: string;
+  time_of_day?: TimeOfDay;
+  notes?: string;
 }
 
 // Medicine types
@@ -145,7 +185,7 @@ export interface MedicineUpdate {
   description?: string;
 }
 
-// Medicine Event type (for Phase 4+)
+// Medicine Event types
 export interface MedicineEvent {
   id: string;
   dog_id: string;
@@ -156,4 +196,39 @@ export interface MedicineEvent {
   notes?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface MedicineEventCreate {
+  dog_id: string;
+  medicine_id: string;
+  date: string;
+  time_of_day: TimeOfDay;
+  dosage: number;
+  notes?: string;
+}
+
+export interface MedicineEventUpdate {
+  dog_id?: string;
+  medicine_id?: string;
+  date?: string;
+  time_of_day?: TimeOfDay;
+  dosage?: number;
+  notes?: string;
+}
+
+// Custom Event types
+export interface CustomEvent {
+  id: string;
+  user_id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CustomEventCreate {
+  name: string;
+}
+
+export interface CustomEventUpdate {
+  name?: string;
 }

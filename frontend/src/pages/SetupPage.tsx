@@ -23,18 +23,27 @@ import {
   Button,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import PetsIcon from '@mui/icons-material/Pets';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MedicationIcon from '@mui/icons-material/Medication';
 import { useDogs } from '../hooks/useDogs';
 import { useVets } from '../hooks/useVets';
 import { useMedicines } from '../hooks/useMedicines';
-import { Dog, Vet, Medicine, DogCreate, DogUpdate, VetCreate, VetUpdate, MedicineCreate, MedicineUpdate } from '../types';
+import { useCustomEvents } from '../hooks/useCustomEvents';
+import { Dog, Vet, Medicine, CustomEvent, DogCreate, DogUpdate, VetCreate, VetUpdate, MedicineCreate, MedicineUpdate, CustomEventCreate, CustomEventUpdate } from '../types';
 import DogFormDialog from '../components/DogFormDialog';
 import VetFormDialog from '../components/VetFormDialog';
 import MedicineFormDialog from '../components/MedicineFormDialog';
+import CustomEventFormDialog from '../components/CustomEventFormDialog';
+import pawIcon from '../assets/paw.png';
+import vetIcon from '../assets/vet.png';
+import medicineIcon from '../assets/medicine.png';
+import calendarNavIcon from '../assets/calendar-nav.png';
+import pawIcon64 from '../assets/paw-64.png';
+import vetIcon64 from '../assets/vet-64.png';
+import medicineIcon64 from '../assets/medicine-64.png';
+import editIcon from '../assets/edit.png';
+import deleteIcon from '../assets/delete.png';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -71,9 +80,15 @@ const SetupPage: React.FC = () => {
   const [editingMedicine, setEditingMedicine] = useState<Medicine | null>(null);
   const [medicineDialogMode, setMedicineDialogMode] = useState<'create' | 'edit'>('create');
 
+  // Custom Events state
+  const { customEvents, loading: customEventsLoading, error: customEventsError, createCustomEvent, updateCustomEvent, deleteCustomEvent } = useCustomEvents();
+  const [customEventDialogOpen, setCustomEventDialogOpen] = useState(false);
+  const [editingCustomEvent, setEditingCustomEvent] = useState<CustomEvent | null>(null);
+  const [customEventDialogMode, setCustomEventDialogMode] = useState<'create' | 'edit'>('create');
+
   // Delete confirmation state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<{ type: 'dog' | 'vet' | 'medicine'; id: string; name: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'dog' | 'vet' | 'medicine' | 'customEvent'; id: string; name: string } | null>(null);
 
   // Handlers for Dogs
   const handleAddDog = () => {
@@ -138,8 +153,29 @@ const SetupPage: React.FC = () => {
     }
   };
 
+  // Handlers for Custom Events
+  const handleAddCustomEvent = () => {
+    setEditingCustomEvent(null);
+    setCustomEventDialogMode('create');
+    setCustomEventDialogOpen(true);
+  };
+
+  const handleEditCustomEvent = (customEvent: CustomEvent) => {
+    setEditingCustomEvent(customEvent);
+    setCustomEventDialogMode('edit');
+    setCustomEventDialogOpen(true);
+  };
+
+  const handleCustomEventSubmit = async (customEventData: CustomEventCreate | CustomEventUpdate) => {
+    if (customEventDialogMode === 'create') {
+      await createCustomEvent(customEventData as CustomEventCreate);
+    } else if (editingCustomEvent) {
+      await updateCustomEvent(editingCustomEvent.id, customEventData as CustomEventUpdate);
+    }
+  };
+
   // Delete handlers
-  const handleDeleteClick = (type: 'dog' | 'vet' | 'medicine', id: string, name: string) => {
+  const handleDeleteClick = (type: 'dog' | 'vet' | 'medicine' | 'customEvent', id: string, name: string) => {
     setDeleteTarget({ type, id, name });
     setDeleteDialogOpen(true);
   };
@@ -154,6 +190,8 @@ const SetupPage: React.FC = () => {
         await deleteVet(deleteTarget.id);
       } else if (deleteTarget.type === 'medicine') {
         await deleteMedicine(deleteTarget.id);
+      } else if (deleteTarget.type === 'customEvent') {
+        await deleteCustomEvent(deleteTarget.id);
       }
       setDeleteDialogOpen(false);
       setDeleteTarget(null);
@@ -170,9 +208,26 @@ const SetupPage: React.FC = () => {
 
       <Paper elevation={2} sx={{ mt: 3 }}>
         <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)}>
-          <Tab icon={<PetsIcon />} label="Dogs" iconPosition="start" />
-          <Tab icon={<LocalHospitalIcon />} label="Vets" iconPosition="start" />
-          <Tab icon={<MedicationIcon />} label="Medicines" iconPosition="start" />
+          <Tab
+            icon={<img src={pawIcon} alt="Dogs" style={{ width: 24, height: 24 }} />}
+            label="Dogs"
+            iconPosition="start"
+          />
+          <Tab
+            icon={<img src={vetIcon} alt="Vets" style={{ width: 24, height: 24 }} />}
+            label="Vets"
+            iconPosition="start"
+          />
+          <Tab
+            icon={<img src={medicineIcon} alt="Medicines" style={{ width: 24, height: 24 }} />}
+            label="Medicines"
+            iconPosition="start"
+          />
+          <Tab
+            icon={<img src={calendarNavIcon} alt="Events" style={{ width: 24, height: 24 }} />}
+            label="Events"
+            iconPosition="start"
+          />
         </Tabs>
 
         {/* Dogs Tab */}
@@ -185,7 +240,7 @@ const SetupPage: React.FC = () => {
             <Alert severity="error">{dogsError}</Alert>
           ) : dogs.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 6 }}>
-              <PetsIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+              <img src={pawIcon64} alt="No dogs" style={{ width: 64, height: 64, opacity: 0.54, marginBottom: 16 }} />
               <Typography variant="h6" color="text.secondary">
                 No dogs yet
               </Typography>
@@ -201,10 +256,10 @@ const SetupPage: React.FC = () => {
                   secondaryAction={
                     <>
                       <IconButton edge="end" onClick={() => handleEditDog(dog)} sx={{ mr: 1 }}>
-                        <EditIcon />
+                        <img src={editIcon} alt="Edit" style={{ width: 24, height: 24 }} />
                       </IconButton>
                       <IconButton edge="end" onClick={() => handleDeleteClick('dog', dog.id, dog.name)}>
-                        <DeleteIcon />
+                        <img src={deleteIcon} alt="Delete" style={{ width: 24, height: 24 }} />
                       </IconButton>
                     </>
                   }
@@ -231,7 +286,7 @@ const SetupPage: React.FC = () => {
             <Alert severity="error">{vetsError}</Alert>
           ) : vets.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 6 }}>
-              <LocalHospitalIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+              <img src={vetIcon64} alt="No vets" style={{ width: 64, height: 64, opacity: 0.54, marginBottom: 16 }} />
               <Typography variant="h6" color="text.secondary">
                 No vets yet
               </Typography>
@@ -247,10 +302,10 @@ const SetupPage: React.FC = () => {
                   secondaryAction={
                     <>
                       <IconButton edge="end" onClick={() => handleEditVet(vet)} sx={{ mr: 1 }}>
-                        <EditIcon />
+                        <img src={editIcon} alt="Edit" style={{ width: 24, height: 24 }} />
                       </IconButton>
                       <IconButton edge="end" onClick={() => handleDeleteClick('vet', vet.id, vet.name)}>
-                        <DeleteIcon />
+                        <img src={deleteIcon} alt="Delete" style={{ width: 24, height: 24 }} />
                       </IconButton>
                     </>
                   }
@@ -280,7 +335,7 @@ const SetupPage: React.FC = () => {
             <Alert severity="error">{medicinesError}</Alert>
           ) : medicines.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 6 }}>
-              <MedicationIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+              <img src={medicineIcon64} alt="No medicines" style={{ width: 64, height: 64, opacity: 0.54, marginBottom: 16 }} />
               <Typography variant="h6" color="text.secondary">
                 No medicines yet
               </Typography>
@@ -296,10 +351,10 @@ const SetupPage: React.FC = () => {
                   secondaryAction={
                     <>
                       <IconButton edge="end" onClick={() => handleEditMedicine(medicine)} sx={{ mr: 1 }}>
-                        <EditIcon />
+                        <img src={editIcon} alt="Edit" style={{ width: 24, height: 24 }} />
                       </IconButton>
                       <IconButton edge="end" onClick={() => handleDeleteClick('medicine', medicine.id, medicine.name)}>
-                        <DeleteIcon />
+                        <img src={deleteIcon} alt="Delete" style={{ width: 24, height: 24 }} />
                       </IconButton>
                     </>
                   }
@@ -313,6 +368,52 @@ const SetupPage: React.FC = () => {
                     primary={medicine.name}
                     secondary={`${medicine.type.charAt(0).toUpperCase() + medicine.type.slice(1)}`}
                   />
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </TabPanel>
+
+        {/* Custom Events Tab */}
+        <TabPanel value={activeTab} index={3}>
+          {customEventsLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : customEventsError ? (
+            <Alert severity="error">{customEventsError}</Alert>
+          ) : customEvents.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 6 }}>
+              <img src={calendarNavIcon} alt="No custom events" style={{ width: 64, height: 64, opacity: 0.54, marginBottom: 16 }} />
+              <Typography variant="h6" color="text.secondary">
+                No custom events yet
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                Create custom event types to track additional health events
+              </Typography>
+            </Box>
+          ) : (
+            <List>
+              {customEvents.map((customEvent) => (
+                <ListItem
+                  key={customEvent.id}
+                  secondaryAction={
+                    <>
+                      <IconButton edge="end" onClick={() => handleEditCustomEvent(customEvent)} sx={{ mr: 1 }}>
+                        <img src={editIcon} alt="Edit" style={{ width: 24, height: 24 }} />
+                      </IconButton>
+                      <IconButton edge="end" onClick={() => handleDeleteClick('customEvent', customEvent.id, customEvent.name)}>
+                        <img src={deleteIcon} alt="Delete" style={{ width: 24, height: 24 }} />
+                      </IconButton>
+                    </>
+                  }
+                >
+                  <ListItemAvatar>
+                    <Avatar sx={{ bgcolor: 'info.main' }}>
+                      <img src={calendarNavIcon} alt="" style={{ width: 24, height: 24 }} />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText primary={customEvent.name} />
                 </ListItem>
               ))}
             </List>
@@ -332,6 +433,7 @@ const SetupPage: React.FC = () => {
         }}
         onClick={() => {
           if (activeTab === 0) handleAddDog();
+          else if (activeTab === 3) handleAddCustomEvent();
           else if (activeTab === 1) handleAddVet();
           else if (activeTab === 2) handleAddMedicine();
         }}
@@ -364,12 +466,22 @@ const SetupPage: React.FC = () => {
         mode={medicineDialogMode}
       />
 
+      <CustomEventFormDialog
+        open={customEventDialogOpen}
+        onClose={() => setCustomEventDialogOpen(false)}
+        onSubmit={handleCustomEventSubmit}
+        customEvent={editingCustomEvent}
+        mode={customEventDialogMode}
+      />
+
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete {deleteTarget?.name}? This action cannot be undone.
+            Are you sure you want to delete {deleteTarget?.name}?
+            {deleteTarget?.type === 'customEvent' && ' All timeline entries using this custom event will also be deleted.'}
+            This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
