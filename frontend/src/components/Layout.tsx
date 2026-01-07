@@ -12,16 +12,44 @@ import {
   MenuItem,
   Avatar,
 } from '@mui/material';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import SettingsIcon from '@mui/icons-material/Settings';
-import InfoIcon from '@mui/icons-material/Info';
 import { useAuth } from '../contexts/AuthContext';
 import logo from '../assets/darcy-logo-200.png';
+import calendarIcon from '../assets/calendar-nav.png';
+import configIcon from '../assets/config-nav.png';
+import accountIcon from '../assets/account-nav.png';
 
-// TODO: Icon placeholders - suggested prompts for Freepik special-lineal-color:
-// - Timeline: "Calendar timeline icon with paw prints, colorful gradient"
-// - Setup: "Settings gear icon with dog bone, colorful gradient"
-// - About: "Information icon with heart, colorful gradient"
+interface NavigationIconProps {
+  src: string;
+  alt: string;
+  isActive: boolean;
+}
+
+const NavigationIcon: React.FC<NavigationIconProps> = ({ src, alt, isActive }) => (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: "75%",
+      height: "100%",
+      borderRadius: 5,
+      bgcolor: isActive ? 'rgba(255, 138, 91, 0.15)' : 'transparent',
+      transition: 'background-color 0.3s',
+    }}
+  >
+    <Box
+      component="img"
+      src={src}
+      alt={alt}
+      sx={{
+        width: 32,
+        height: 32,
+        opacity: isActive ? 1 : 0.5,
+        transition: 'opacity 0.3s',
+      }}
+    />
+  </Box>
+);
 
 const Layout: React.FC = () => {
   const navigate = useNavigate();
@@ -117,29 +145,38 @@ const Layout: React.FC = () => {
       <BottomNavigation
         value={location.pathname}
         onChange={handleNavigation}
-        showLabels
         sx={{
           position: 'fixed',
           bottom: 0,
           left: 0,
           right: 0,
           zIndex: 1000,
+          height: 64,
+          // '& .Mui-selected': {
+          //   paddingTop: 0,
+          // },
+          '& .MuiBottomNavigationAction-label': {
+            display: 'none',
+          },
         }}
       >
         <BottomNavigationAction
           label="Timeline"
           value="/"
-          icon={<TimelineIcon />}
+          icon={<NavigationIcon src={calendarIcon} alt="Timeline" isActive={location.pathname === '/'} />}
+          sx={{ minWidth: 0 }}
         />
         <BottomNavigationAction
           label="Setup"
           value="/setup"
-          icon={<SettingsIcon />}
+          icon={<NavigationIcon src={configIcon} alt="Setup" isActive={location.pathname === '/setup'} />}
+          sx={{ minWidth: 0 }}
         />
         <BottomNavigationAction
           label="About"
           value="/about"
-          icon={<InfoIcon />}
+          icon={<NavigationIcon src={accountIcon} alt="About" isActive={location.pathname === '/about'} />}
+          sx={{ minWidth: 0 }}
         />
       </BottomNavigation>
     </Box>

@@ -1,9 +1,17 @@
 import React from 'react';
-import { Container, Typography, Box, Paper } from '@mui/material';
+import { Container, Typography, Box, Paper, Avatar, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../contexts/AuthContext';
 
 const AboutPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 10 }}>
@@ -38,12 +46,37 @@ const AboutPage: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               Your Account
             </Typography>
-            <Typography variant="body2">
-              <strong>Name:</strong> {user.name}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Email:</strong> {user.email}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mt: 2 }}>
+              <Avatar
+                src={user.picture}
+                alt={user.name}
+                sx={{
+                  width: 80,
+                  height: 80,
+                  border: '3px solid',
+                  borderColor: 'primary.main',
+                  boxShadow: 3,
+                }}
+              />
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="body1" fontWeight={600}>
+                  {user.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {user.email}
+                </Typography>
+              </Box>
+            </Box>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<LogoutIcon />}
+              onClick={handleLogout}
+              sx={{ mt: 3 }}
+              fullWidth
+            >
+              Logout
+            </Button>
           </Box>
         )}
 
