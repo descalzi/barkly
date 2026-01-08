@@ -46,6 +46,11 @@ import deleteIcon from '../assets/delete.png';
 import iconOk from '../assets/icon_ok.png';
 import iconCancel from '../assets/icon_cancel.png';
 import dogSpinner from '../assets/dog_spinner.gif';
+import eventPooIcon from '../assets/event_poo.png';
+import typeVomitIcon from '../assets/type_vomit.png';
+import typeScratchyIcon from '../assets/type_scratchy.png';
+import typeInjuryIcon from '../assets/type_injury.png';
+import typeOtherIcon from '../assets/type_other.png';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -222,23 +227,15 @@ const SetupPage: React.FC = () => {
         <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)}>
           <Tab
             icon={<img src={pawIcon} alt="Dogs" style={{ width: 24, height: 24 }} />}
-            label="Dogs"
-            iconPosition="start"
           />
           <Tab
             icon={<img src={vetIcon} alt="Vets" style={{ width: 24, height: 24 }} />}
-            label="Vets"
-            iconPosition="start"
           />
           <Tab
             icon={<img src={medicineIcon} alt="Medicines" style={{ width: 24, height: 24 }} />}
-            label="Medicines"
-            iconPosition="start"
           />
           <Tab
             icon={<img src={eventHealthIcon} alt="Events" style={{ width: 24, height: 24 }} />}
-            label="Events"
-            iconPosition="start"
           />
         </Tabs>
 
@@ -391,14 +388,67 @@ const SetupPage: React.FC = () => {
           ) : customEventsError ? (
             <Alert severity="error">{customEventsError}</Alert>
           ) : customEvents.length === 0 ? (
-            <Box sx={{ textAlign: 'center', py: 6 }}>
-              <img src={eventHealthIcon} alt="No custom events" style={{ width: 64, height: 64, opacity: 0.54, marginBottom: 16 }} />
-              <Typography variant="h6" color="text.secondary">
-                No custom events yet
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Create custom event types to track additional health events
-              </Typography>
+            <Box sx={{ py: 4 }}>
+              <Box sx={{ textAlign: 'center', mb: 4 }}>
+                <img src={eventHealthIcon} alt="No custom events" style={{ width: 64, height: 64, opacity: 0.54, marginBottom: 16 }} />
+                <Typography variant="h6" color="text.secondary">
+                  No custom events yet
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Create custom event types to track additional health events
+                </Typography>
+              </Box>
+
+              <Box sx={{ px: 3 }}>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                  Pre-defined Event Types:
+                </Typography>
+                <List dense>
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: 'transparent', width: 32, height: 32 }}>
+                        <img src={eventPooIcon} alt="Poo" style={{ width: 24, height: 24 }} />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary="Poo" secondary="Track bowel movements and quality" />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: 'transparent', width: 32, height: 32 }}>
+                        <img src={typeVomitIcon} alt="Vomit" style={{ width: 24, height: 24 }} />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary="Vomit" secondary="Record vomiting incidents" />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: 'transparent', width: 32, height: 32 }}>
+                        <img src={typeScratchyIcon} alt="Itchy" style={{ width: 24, height: 24 }} />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary="Itchy" secondary="Track scratching and skin issues" />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: 'transparent', width: 32, height: 32 }}>
+                        <img src={typeInjuryIcon} alt="Injury" style={{ width: 24, height: 24 }} />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary="Injury" secondary="Document injuries and wounds" />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: 'transparent', width: 32, height: 32 }}>
+                        <img src={typeOtherIcon} alt="Other" style={{ width: 24, height: 24 }} />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary="Other" secondary="General health observations" />
+                  </ListItem>
+                </List>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2, textAlign: 'center' }}>
+                  These built-in event types are always available in your timeline
+                </Typography>
+              </Box>
             </Box>
           ) : (
             <List>
