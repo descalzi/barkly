@@ -8,11 +8,14 @@ import {
   TextField,
   Box,
   Avatar,
-  CircularProgress,
 } from '@mui/material';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import { Dog, DogCreate, DogUpdate } from '../types';
 import { apiClient } from '../api/client';
+import dogProfilePlaceholder from '../assets/dog-profile.png';
+import iconOk from '../assets/icon_ok.png';
+import iconCancel from '../assets/icon_cancel.png';
+import dogSpinner from '../assets/dog_spinner.gif';
 
 interface DogFormDialogProps {
   open: boolean;
@@ -93,7 +96,7 @@ const DogFormDialog: React.FC<DogFormDialogProps> = ({
           {/* Profile Picture */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
             <Avatar
-              src={profilePicture}
+              src={profilePicture || dogProfilePlaceholder}
               sx={{
                 width: 120,
                 height: 120,
@@ -105,7 +108,7 @@ const DogFormDialog: React.FC<DogFormDialogProps> = ({
             <Button
               variant="outlined"
               component="label"
-              startIcon={uploading ? <CircularProgress size={20} /> : <PhotoCameraIcon />}
+              startIcon={uploading ? <img src={dogSpinner} alt="" style={{ width: 20, height: 20 }} /> : <PhotoCameraIcon />}
               disabled={uploading}
             >
               {uploading ? 'Uploading...' : 'Upload Photo'}
@@ -138,13 +141,18 @@ const DogFormDialog: React.FC<DogFormDialogProps> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={submitting}>
+        <Button
+          onClick={onClose}
+          disabled={submitting}
+          startIcon={<img src={iconCancel} alt="" style={{ width: 20, height: 20 }} />}
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
           disabled={submitting || !name.trim()}
+          startIcon={submitting ? <img src={dogSpinner} alt="" style={{ width: 20, height: 20 }} /> : <img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
         >
           {submitting ? 'Saving...' : mode === 'create' ? 'Add Dog' : 'Save Changes'}
         </Button>

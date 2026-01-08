@@ -85,6 +85,11 @@ async function apiFetch<T>(
       throw new Error(error.detail || 'An error occurred');
     }
 
+    // Handle 204 No Content responses (common for DELETE operations)
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
+      return undefined as T;
+    }
+
     return await response.json();
   } catch (error) {
     if (error instanceof Error) {

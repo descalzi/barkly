@@ -13,7 +13,6 @@ import {
   IconButton,
   Fab,
   Paper,
-  CircularProgress,
   Alert,
   Dialog,
   DialogTitle,
@@ -23,8 +22,6 @@ import {
   Button,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import PetsIcon from '@mui/icons-material/Pets';
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MedicationIcon from '@mui/icons-material/Medication';
 import { useDogs } from '../hooks/useDogs';
 import { useVets } from '../hooks/useVets';
@@ -38,12 +35,17 @@ import CustomEventFormDialog from '../components/CustomEventFormDialog';
 import pawIcon from '../assets/paw.png';
 import vetIcon from '../assets/vet.png';
 import medicineIcon from '../assets/medicine.png';
-import calendarNavIcon from '../assets/calendar-nav.png';
+import eventHealthIcon from '../assets/event_health.png';
 import pawIcon64 from '../assets/paw-64.png';
 import vetIcon64 from '../assets/vet-64.png';
 import medicineIcon64 from '../assets/medicine-64.png';
+import veterinarianIcon from '../assets/veterinarian.png';
+import dogProfilePlaceholder from '../assets/dog-profile.png';
 import editIcon from '../assets/edit.png';
 import deleteIcon from '../assets/delete.png';
+import iconOk from '../assets/icon_ok.png';
+import iconCancel from '../assets/icon_cancel.png';
+import dogSpinner from '../assets/dog_spinner.gif';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -89,6 +91,8 @@ const SetupPage: React.FC = () => {
   // Delete confirmation state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'dog' | 'vet' | 'medicine' | 'customEvent'; id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Handlers for Dogs
   const handleAddDog = () => {
@@ -177,6 +181,7 @@ const SetupPage: React.FC = () => {
   // Delete handlers
   const handleDeleteClick = (type: 'dog' | 'vet' | 'medicine' | 'customEvent', id: string, name: string) => {
     setDeleteTarget({ type, id, name });
+    setDeleteError(null);
     setDeleteDialogOpen(true);
   };
 
@@ -184,6 +189,9 @@ const SetupPage: React.FC = () => {
     if (!deleteTarget) return;
 
     try {
+      setDeleting(true);
+      setDeleteError(null);
+
       if (deleteTarget.type === 'dog') {
         await deleteDog(deleteTarget.id);
       } else if (deleteTarget.type === 'vet') {
@@ -193,10 +201,14 @@ const SetupPage: React.FC = () => {
       } else if (deleteTarget.type === 'customEvent') {
         await deleteCustomEvent(deleteTarget.id);
       }
+
       setDeleteDialogOpen(false);
       setDeleteTarget(null);
     } catch (error) {
       console.error('Delete failed:', error);
+      setDeleteError(error instanceof Error ? error.message : 'Failed to delete. Please try again.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -224,7 +236,7 @@ const SetupPage: React.FC = () => {
             iconPosition="start"
           />
           <Tab
-            icon={<img src={calendarNavIcon} alt="Events" style={{ width: 24, height: 24 }} />}
+            icon={<img src={eventHealthIcon} alt="Events" style={{ width: 24, height: 24 }} />}
             label="Events"
             iconPosition="start"
           />
@@ -234,7 +246,7 @@ const SetupPage: React.FC = () => {
         <TabPanel value={activeTab} index={0}>
           {dogsLoading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
+              <img src={dogSpinner} alt="Loading..." style={{ width: 48, height: 48 }} />
             </Box>
           ) : dogsError ? (
             <Alert severity="error">{dogsError}</Alert>
@@ -265,9 +277,7 @@ const SetupPage: React.FC = () => {
                   }
                 >
                   <ListItemAvatar>
-                    <Avatar src={dog.profile_picture} alt={dog.name}>
-                      <PetsIcon />
-                    </Avatar>
+                    <Avatar src={dog.profile_picture || dogProfilePlaceholder} alt={dog.name} />
                   </ListItemAvatar>
                   <ListItemText primary={dog.name} />
                 </ListItem>
@@ -280,7 +290,7 @@ const SetupPage: React.FC = () => {
         <TabPanel value={activeTab} index={1}>
           {vetsLoading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
+              <img src={dogSpinner} alt="Loading..." style={{ width: 48, height: 48 }} />
             </Box>
           ) : vetsError ? (
             <Alert severity="error">{vetsError}</Alert>
@@ -311,9 +321,7 @@ const SetupPage: React.FC = () => {
                   }
                 >
                   <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: 'secondary.main' }}>
-                      <LocalHospitalIcon />
-                    </Avatar>
+                    <Avatar src={veterinarianIcon} alt={vet.name} />
                   </ListItemAvatar>
                   <ListItemText
                     primary={vet.name}
@@ -329,7 +337,7 @@ const SetupPage: React.FC = () => {
         <TabPanel value={activeTab} index={2}>
           {medicinesLoading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
+              <img src={dogSpinner} alt="Loading..." style={{ width: 48, height: 48 }} />
             </Box>
           ) : medicinesError ? (
             <Alert severity="error">{medicinesError}</Alert>
@@ -378,13 +386,13 @@ const SetupPage: React.FC = () => {
         <TabPanel value={activeTab} index={3}>
           {customEventsLoading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
+              <img src={dogSpinner} alt="Loading..." style={{ width: 48, height: 48 }} />
             </Box>
           ) : customEventsError ? (
             <Alert severity="error">{customEventsError}</Alert>
           ) : customEvents.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 6 }}>
-              <img src={calendarNavIcon} alt="No custom events" style={{ width: 64, height: 64, opacity: 0.54, marginBottom: 16 }} />
+              <img src={eventHealthIcon} alt="No custom events" style={{ width: 64, height: 64, opacity: 0.54, marginBottom: 16 }} />
               <Typography variant="h6" color="text.secondary">
                 No custom events yet
               </Typography>
@@ -410,7 +418,7 @@ const SetupPage: React.FC = () => {
                 >
                   <ListItemAvatar>
                     <Avatar sx={{ bgcolor: 'info.main' }}>
-                      <img src={calendarNavIcon} alt="" style={{ width: 24, height: 24 }} />
+                      <img src={eventHealthIcon} alt="" style={{ width: 24, height: 24 }} />
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText primary={customEvent.name} />
@@ -475,7 +483,7 @@ const SetupPage: React.FC = () => {
       />
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+      <Dialog open={deleteDialogOpen} onClose={deleting ? undefined : () => setDeleteDialogOpen(false)}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -483,11 +491,28 @@ const SetupPage: React.FC = () => {
             {deleteTarget?.type === 'customEvent' && ' All timeline entries using this custom event will also be deleted.'}
             This action cannot be undone.
           </DialogContentText>
+          {deleteError && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {deleteError}
+            </Alert>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
-            Delete
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            disabled={deleting}
+            startIcon={<img src={iconCancel} alt="" style={{ width: 20, height: 20 }} />}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteConfirm}
+            color="error"
+            variant="contained"
+            disabled={deleting}
+            startIcon={deleting ? <img src={dogSpinner} alt="" style={{ width: 20, height: 20 }} /> : <img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogActions>
       </Dialog>

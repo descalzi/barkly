@@ -33,9 +33,7 @@ export enum TimeOfDay {
 export enum EventType {
   POO = 'Poo',
   VOMIT = 'Vomit',
-  NAUSEA = 'Nausea',
   ITCHY = 'Itchy',
-  GRASS_MUNCHING = 'Grass Munching',
   INJURY = 'Injury',
   OTHER = 'Other',
 }

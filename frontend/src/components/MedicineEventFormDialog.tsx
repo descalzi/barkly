@@ -17,6 +17,9 @@ import morningIcon from '../assets/morning.png';
 import afternoonIcon from '../assets/afternoon.png';
 import eveningIcon from '../assets/evening.png';
 import nightIcon from '../assets/night.png';
+import iconOk from '../assets/icon_ok.png';
+import iconCancel from '../assets/icon_cancel.png';
+import dogSpinner from '../assets/dog_spinner.gif';
 
 interface MedicineEventFormDialogProps {
   open: boolean;
@@ -230,13 +233,18 @@ const MedicineEventFormDialog: React.FC<MedicineEventFormDialogProps> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={submitting}>
+        <Button
+          onClick={onClose}
+          disabled={submitting}
+          startIcon={<img src={iconCancel} alt="" style={{ width: 20, height: 20 }} />}
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
           disabled={submitting || !dogId || !medicineId || !date || !dosage}
+          startIcon={submitting ? <img src={dogSpinner} alt="" style={{ width: 20, height: 20 }} /> : <img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
         >
           {submitting ? 'Saving...' : mode === 'create' ? 'Add' : 'Save Changes'}
         </Button>

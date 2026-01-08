@@ -7,8 +7,13 @@ import {
   Button,
   TextField,
   Box,
+  Avatar,
 } from '@mui/material';
 import { Vet, VetCreate, VetUpdate } from '../types';
+import veterinarianIcon from '../assets/veterinarian.png';
+import iconOk from '../assets/icon_ok.png';
+import iconCancel from '../assets/icon_cancel.png';
+import dogSpinner from '../assets/dog_spinner.gif';
 
 interface VetFormDialogProps {
   open: boolean;
@@ -74,6 +79,20 @@ const VetFormDialog: React.FC<VetFormDialogProps> = ({
       <DialogTitle>{mode === 'create' ? 'Add New Vet' : 'Edit Vet'}</DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+          {/* Veterinarian Avatar */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+            <Avatar
+              src={veterinarianIcon}
+              sx={{
+                width: 120,
+                height: 120,
+                border: '3px solid',
+                borderColor: 'primary.main',
+                boxShadow: 3,
+              }}
+            />
+          </Box>
+
           {/* Name Field */}
           <TextField
             label="Vet Name"
@@ -116,13 +135,18 @@ const VetFormDialog: React.FC<VetFormDialogProps> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={submitting}>
+        <Button
+          onClick={onClose}
+          disabled={submitting}
+          startIcon={<img src={iconCancel} alt="" style={{ width: 20, height: 20 }} />}
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
           disabled={submitting || !name.trim()}
+          startIcon={submitting ? <img src={dogSpinner} alt="" style={{ width: 20, height: 20 }} /> : <img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
         >
           {submitting ? 'Saving...' : mode === 'create' ? 'Add Vet' : 'Save Changes'}
         </Button>

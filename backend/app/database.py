@@ -27,9 +27,7 @@ class TimeOfDay(str, enum.Enum):
 class EventType(str, enum.Enum):
     POO = "Poo"
     VOMIT = "Vomit"
-    NAUSEA = "Nausea"
     ITCHY = "Itchy"
-    GRASS_MUNCHING = "Grass Munching"
     INJURY = "Injury"
     OTHER = "Other"
 

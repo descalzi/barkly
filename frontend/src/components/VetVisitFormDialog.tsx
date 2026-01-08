@@ -17,6 +17,9 @@ import morningIcon from '../assets/morning.png';
 import afternoonIcon from '../assets/afternoon.png';
 import eveningIcon from '../assets/evening.png';
 import nightIcon from '../assets/night.png';
+import iconOk from '../assets/icon_ok.png';
+import iconCancel from '../assets/icon_cancel.png';
+import dogSpinner from '../assets/dog_spinner.gif';
 
 interface VetVisitFormDialogProps {
   open: boolean;
@@ -198,13 +201,18 @@ const VetVisitFormDialog: React.FC<VetVisitFormDialogProps> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={submitting}>
+        <Button
+          onClick={onClose}
+          disabled={submitting}
+          startIcon={<img src={iconCancel} alt="" style={{ width: 20, height: 20 }} />}
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
           disabled={submitting || !dogId || !vetId || !date}
+          startIcon={submitting ? <img src={dogSpinner} alt="" style={{ width: 20, height: 20 }} /> : <img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
         >
           {submitting ? 'Saving...' : mode === 'create' ? 'Add Visit' : 'Save Changes'}
         </Button>

@@ -18,10 +18,17 @@ import {
 import { Event, EventCreate, EventUpdate, EventType, TimeOfDay, VomitQuality, Dog, CustomEvent } from '../types';
 import eventPooIcon from '../assets/event_poo.png';
 import eventPooEmptyIcon from '../assets/event_poo_empty.png';
+import typeVomitIcon from '../assets/type_vomit.png';
+import typeScratchyIcon from '../assets/type_scratchy.png';
+import typeInjuryIcon from '../assets/type_injury.png';
+import typeOtherIcon from '../assets/type_other.png';
 import morningIcon from '../assets/morning.png';
 import afternoonIcon from '../assets/afternoon.png';
 import eveningIcon from '../assets/evening.png';
 import nightIcon from '../assets/night.png';
+import iconOk from '../assets/icon_ok.png';
+import iconCancel from '../assets/icon_cancel.png';
+import dogSpinner from '../assets/dog_spinner.gif';
 
 interface EventFormDialogProps {
   open: boolean;
@@ -162,13 +169,36 @@ const EventFormDialog: React.FC<EventFormDialogProps> = ({
               onChange={(e) => handleEventTypeChange(e.target.value)}
               label="Event Type"
             >
-              <MenuItem value={EventType.POO}>💩 Poo</MenuItem>
-              <MenuItem value={EventType.VOMIT}>🤮 Vomit</MenuItem>
-              <MenuItem value={EventType.NAUSEA}>😰 Nausea</MenuItem>
-              <MenuItem value={EventType.ITCHY}>🐾 Itchy</MenuItem>
-              <MenuItem value={EventType.GRASS_MUNCHING}>🌱 Grass Munching</MenuItem>
-              <MenuItem value={EventType.INJURY}>🩹 Injury</MenuItem>
-              <MenuItem value={EventType.OTHER}>📝 Other</MenuItem>
+              <MenuItem value={EventType.POO}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <img src={eventPooIcon} alt="" style={{ width: 20, height: 20 }} />
+                  Poo
+                </Box>
+              </MenuItem>
+              <MenuItem value={EventType.VOMIT}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <img src={typeVomitIcon} alt="" style={{ width: 20, height: 20 }} />
+                  Vomit
+                </Box>
+              </MenuItem>
+              <MenuItem value={EventType.ITCHY}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <img src={typeScratchyIcon} alt="" style={{ width: 20, height: 20 }} />
+                  Itchy
+                </Box>
+              </MenuItem>
+              <MenuItem value={EventType.INJURY}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <img src={typeInjuryIcon} alt="" style={{ width: 20, height: 20 }} />
+                  Injury
+                </Box>
+              </MenuItem>
+              <MenuItem value={EventType.OTHER}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <img src={typeOtherIcon} alt="" style={{ width: 20, height: 20 }} />
+                  Other
+                </Box>
+              </MenuItem>
               {customEvents.length > 0 && <Divider sx={{ my: 1 }} />}
               {customEvents.map((customEvent) => (
                 <MenuItem key={customEvent.id} value={`custom_${customEvent.id}`}>
@@ -278,13 +308,18 @@ const EventFormDialog: React.FC<EventFormDialogProps> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={submitting}>
+        <Button
+          onClick={onClose}
+          disabled={submitting}
+          startIcon={<img src={iconCancel} alt="" style={{ width: 20, height: 20 }} />}
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
           disabled={submitting || !dogId || !date}
+          startIcon={submitting ? <img src={dogSpinner} alt="" style={{ width: 20, height: 20 }} /> : <img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
         >
           {submitting ? 'Saving...' : mode === 'create' ? 'Add Event' : 'Save Changes'}
         </Button>

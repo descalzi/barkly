@@ -11,7 +11,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  CircularProgress,
   SpeedDial,
   SpeedDialAction,
   SpeedDialIcon,
@@ -48,10 +47,19 @@ import calendarNavIcon from '../assets/calendar-nav.png';
 import eventPooIcon from '../assets/event_poo.png';
 import eventPooEmptyIcon from '../assets/event_poo_empty.png';
 import eventMedicineIcon from '../assets/event_medicine.png';
+import eventHealthIcon from '../assets/event_health.png';
+import eventVetIcon from '../assets/event_vet.png';
+import typeVomitIcon from '../assets/type_vomit.png';
+import typeScratchyIcon from '../assets/type_scratchy.png';
+import typeInjuryIcon from '../assets/type_injury.png';
+import typeOtherIcon from '../assets/type_other.png';
 import morningIcon from '../assets/morning.png';
 import afternoonIcon from '../assets/afternoon.png';
 import eveningIcon from '../assets/evening.png';
 import nightIcon from '../assets/night.png';
+import iconOk from '../assets/icon_ok.png';
+import iconCancel from '../assets/icon_cancel.png';
+import dogSpinner from '../assets/dog_spinner.gif';
 
 // Unified timeline item type
 type TimelineItem = {
@@ -399,7 +407,7 @@ const TimelinePage: React.FC = () => {
       {/* Timeline */}
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-          <CircularProgress />
+          <img src={dogSpinner} alt="Loading..." style={{ width: 48, height: 48 }} />
         </Box>
       ) : timelineItems.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 8 }}>
@@ -450,12 +458,22 @@ const TimelinePage: React.FC = () => {
                     if (event.custom_event_id) {
                       return '📌'; // Pushpin for custom events
                     }
-                    if (event.event_type === EventType.POO) {
-                      return <img src={eventPooIcon} alt="Poo" style={{ width: 24, height: 24 }} />;
+                    switch (event.event_type) {
+                      case EventType.POO:
+                        return <img src={eventPooIcon} alt="Poo" style={{ width: 24, height: 24 }} />;
+                      case EventType.VOMIT:
+                        return <img src={typeVomitIcon} alt="Vomit" style={{ width: 24, height: 24 }} />;
+                      case EventType.ITCHY:
+                        return <img src={typeScratchyIcon} alt="Itchy" style={{ width: 24, height: 24 }} />;
+                      case EventType.INJURY:
+                        return <img src={typeInjuryIcon} alt="Injury" style={{ width: 24, height: 24 }} />;
+                      case EventType.OTHER:
+                        return <img src={typeOtherIcon} alt="Other" style={{ width: 24, height: 24 }} />;
+                      default:
+                        return <img src={typeOtherIcon} alt="Event" style={{ width: 24, height: 24 }} />;
                     }
-                    return '💩';
                   } else if (item.type === 'vet_visit') {
-                    return '🏥';
+                    return <img src={eventVetIcon} alt="Vet Visit" style={{ width: 24, height: 24 }} />;
                   } else {
                     return <img src={eventMedicineIcon} alt="Medicine" style={{ width: 24, height: 24 }} />;
                   }
@@ -497,12 +515,12 @@ const TimelinePage: React.FC = () => {
         icon={<SpeedDialIcon />}
       >
         <SpeedDialAction
-          icon={<span style={{ fontSize: 20 }}>💩</span>}
+          icon={<img src={eventHealthIcon} alt="Health Event" style={{ width: 20, height: 20 }} />}
           tooltipTitle="Health Event"
           onClick={() => handleAddEvent('event')}
         />
         <SpeedDialAction
-          icon={<span style={{ fontSize: 20 }}>🏥</span>}
+          icon={<img src={eventVetIcon} alt="Vet Visit" style={{ width: 20, height: 20 }} />}
           tooltipTitle="Vet Visit"
           onClick={() => handleAddEvent('vet_visit')}
         />
@@ -556,8 +574,18 @@ const TimelinePage: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            startIcon={<img src={iconCancel} alt="" style={{ width: 20, height: 20 }} />}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteConfirm}
+            color="error"
+            variant="contained"
+            startIcon={<img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
+          >
             Delete
           </Button>
         </DialogActions>

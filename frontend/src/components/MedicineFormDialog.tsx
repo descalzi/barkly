@@ -13,6 +13,9 @@ import {
   MenuItem,
 } from '@mui/material';
 import { Medicine, MedicineCreate, MedicineUpdate, MedicineType } from '../types';
+import iconOk from '../assets/icon_ok.png';
+import iconCancel from '../assets/icon_cancel.png';
+import dogSpinner from '../assets/dog_spinner.gif';
 
 interface MedicineFormDialogProps {
   open: boolean;
@@ -124,13 +127,18 @@ const MedicineFormDialog: React.FC<MedicineFormDialogProps> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={submitting}>
+        <Button
+          onClick={onClose}
+          disabled={submitting}
+          startIcon={<img src={iconCancel} alt="" style={{ width: 20, height: 20 }} />}
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
           disabled={submitting || !name.trim()}
+          startIcon={submitting ? <img src={dogSpinner} alt="" style={{ width: 20, height: 20 }} /> : <img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
         >
           {submitting ? 'Saving...' : mode === 'create' ? 'Add Medicine' : 'Save Changes'}
         </Button>
