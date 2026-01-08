@@ -254,10 +254,22 @@ export const apiClient = {
       });
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({
-          detail: `HTTP ${response.status}: ${response.statusText}`,
-        }));
-        throw new Error(error.detail || 'Upload failed');
+        // Handle specific HTTP status codes with friendly messages
+        let errorMessage = 'Upload failed';
+
+        if (response.status === 413) {
+          errorMessage = 'File is too large. Maximum size is 2MB.';
+        } else {
+          // Try to parse JSON error response
+          const error = await response.json().catch(() => null);
+          if (error?.detail) {
+            errorMessage = error.detail;
+          } else {
+            errorMessage = `Upload failed (HTTP ${response.status})${response.statusText ? ': ' + response.statusText : ''}`;
+          }
+        }
+
+        throw new Error(errorMessage);
       }
 
       return await response.json();

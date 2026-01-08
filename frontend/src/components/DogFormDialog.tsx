@@ -8,6 +8,7 @@ import {
   TextField,
   Box,
   Avatar,
+  Alert,
 } from '@mui/material';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import { Dog, DogCreate, DogUpdate } from '../types';
@@ -16,6 +17,7 @@ import dogProfilePlaceholder from '../assets/dog-profile.png';
 import iconOk from '../assets/icon_ok.png';
 import iconCancel from '../assets/icon_cancel.png';
 import dogSpinner from '../assets/dog_spinner.gif';
+import ImageCropDialog from './ImageCropDialog';
 
 interface DogFormDialogProps {
   open: boolean;
@@ -37,6 +39,8 @@ const DogFormDialog: React.FC<DogFormDialogProps> = ({
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string>('');
 
   useEffect(() => {
     if (dog && mode === 'edit') {
@@ -53,11 +57,40 @@ const DogFormDialog: React.FC<DogFormDialogProps> = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Invalid file type. Please upload a JPEG, PNG, GIF, or WebP image.');
+      return;
+    }
+
+    // Read file and show crop dialog
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageToCrop(reader.result as string);
+      setCropDialogOpen(true);
+    };
+    reader.onerror = () => {
+      setError('Failed to read image file');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = async (croppedImageData: string) => {
+    setCropDialogOpen(false);
+
     try {
       setUploading(true);
       setError(null);
-      const response = await apiClient.upload.image(file);
-      setProfilePicture(response.data);
+
+      // Convert data URL to File
+      const response = await fetch(croppedImageData);
+      const blob = await response.blob();
+      const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+
+      // Upload the cropped image
+      const uploadResponse = await apiClient.upload.image(file);
+      setProfilePicture(uploadResponse.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to upload image');
     } finally {
@@ -157,6 +190,14 @@ const DogFormDialog: React.FC<DogFormDialogProps> = ({
           {submitting ? 'Saving...' : mode === 'create' ? 'Add Dog' : 'Save Changes'}
         </Button>
       </DialogActions>
+
+      {/* Image Crop Dialog */}
+      <ImageCropDialog
+        open={cropDialogOpen}
+        imageSrc={imageToCrop}
+        onClose={() => setCropDialogOpen(false)}
+        onComplete={handleCropComplete}
+      />
     </Dialog>
   );
 };
