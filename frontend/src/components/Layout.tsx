@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -7,12 +7,7 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  IconButton,
-  Menu,
-  MenuItem,
-  Avatar,
 } from '@mui/material';
-import { useAuth } from '../contexts/AuthContext';
 import logo from '../assets/darcy-logo-200.png';
 import calendarIcon from '../assets/calendar-nav.png';
 import configIcon from '../assets/config-nav.png';
@@ -54,25 +49,9 @@ const NavigationIcon: React.FC<NavigationIconProps> = ({ src, alt, isActive }) =
 const Layout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleNavigation = (_event: React.SyntheticEvent, newValue: string) => {
     navigate(newValue);
-  };
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    handleMenuClose();
-    logout();
-    navigate('/login');
   };
 
   return (
@@ -97,42 +76,6 @@ const Layout: React.FC = () => {
               Barkly
             </Typography>
           </Box>
-          {user && (
-            <>
-              <IconButton onClick={handleMenuOpen} sx={{ p: 0 }}>
-                <Avatar
-                  src={user.picture}
-                  alt={user.name}
-                  sx={{ width: 36, height: 36 }}
-                />
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-              >
-                <MenuItem disabled>
-                  <Box>
-                    <Typography variant="body2" fontWeight={600}>
-                      {user.name}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {user.email}
-                    </Typography>
-                  </Box>
-                </MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              </Menu>
-            </>
-          )}
         </Toolbar>
       </AppBar>
 

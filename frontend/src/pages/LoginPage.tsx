@@ -24,7 +24,21 @@ const LoginPage: React.FC = () => {
     try {
       const response = await apiClient.auth.googleAuth(credentialResponse.credential);
       login(response.access_token, response.user);
-      navigate('/');
+
+      // Check if user has any dogs (first-time user check)
+      try {
+        const dogs = await apiClient.dogs.getAll();
+        if (dogs.length === 0) {
+          // First-time user - show them the About page
+          navigate('/about');
+        } else {
+          // Returning user - go to timeline
+          navigate('/');
+        }
+      } catch {
+        // If we can't fetch dogs, just go to home
+        navigate('/');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Authentication failed');
     } finally {
