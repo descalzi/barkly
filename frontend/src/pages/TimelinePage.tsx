@@ -5,7 +5,6 @@ import {
   Box,
   Card,
   CardContent,
-  IconButton,
   Chip,
   FormControl,
   InputLabel,
@@ -689,7 +688,6 @@ const TimelinePage: React.FC = () => {
         <DialogTitle>
           {selectedItem && (() => {
             const getDogName = (dogId: string) => dogs.find(d => d.id === dogId)?.name || 'Unknown';
-            const getVetName = (vetId: string) => vets.find(v => v.id === vetId)?.name || 'Unknown';
             const getMedicineName = (medicineId: string) => medicines.find(m => m.id === medicineId)?.name || 'Unknown';
             const getCustomEventName = (customEventId: string) => customEvents.find(ce => ce.id === customEventId)?.name || 'Unknown';
 
