@@ -72,7 +72,7 @@ const Layout: React.FC = () => {
                 boxShadow: '0px 2px 8px rgba(0,0,0,0.15)',
               }}
             />
-            <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
+            <Typography variant="h2" component="div" sx={{ fontWeight: 800, fontFamily: '"Baloo 2", cursive' }}>
               Barkly
             </Typography>
           </Box>
