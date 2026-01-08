@@ -39,7 +39,17 @@ const AboutPage: React.FC = () => {
         </Typography>
 
         {/* Setup Section */}
-        <Box sx={{ mb: 3 }}>
+        <Box
+          sx={{
+            mb: 3,
+            cursor: 'pointer',
+            p: 1.5,
+            borderRadius: 2,
+            transition: 'background-color 0.2s',
+            '&:hover': { bgcolor: 'action.hover' },
+          }}
+          onClick={() => navigate('/setup')}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
             <img src={pawIcon} alt="" style={{ width: 28, height: 28 }} />
             <Typography variant="h6" fontWeight={600}>
@@ -52,7 +62,17 @@ const AboutPage: React.FC = () => {
         </Box>
 
         {/* Timeline Section */}
-        <Box sx={{ mb: 3 }}>
+        <Box
+          sx={{
+            mb: 3,
+            cursor: 'pointer',
+            p: 1.5,
+            borderRadius: 2,
+            transition: 'background-color 0.2s',
+            '&:hover': { bgcolor: 'action.hover' },
+          }}
+          onClick={() => navigate('/')}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
             <img src={eventHealthIcon} alt="" style={{ width: 28, height: 28 }} />
             <Typography variant="h6" fontWeight={600}>
@@ -65,7 +85,16 @@ const AboutPage: React.FC = () => {
         </Box>
 
         {/* Health Events */}
-        <Card sx={{ mb: 2, bgcolor: 'action.hover' }}>
+        <Card
+          sx={{
+            mb: 2,
+            bgcolor: 'action.hover',
+            cursor: 'pointer',
+            transition: 'box-shadow 0.2s',
+            '&:hover': { boxShadow: 4 },
+          }}
+          onClick={() => navigate('/')}
+        >
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
               <img src={eventHealthIcon} alt="" style={{ width: 32, height: 32, marginTop: 4 }} />
@@ -82,7 +111,16 @@ const AboutPage: React.FC = () => {
         </Card>
 
         {/* Vet Visits */}
-        <Card sx={{ mb: 2, bgcolor: 'action.hover' }}>
+        <Card
+          sx={{
+            mb: 2,
+            bgcolor: 'action.hover',
+            cursor: 'pointer',
+            transition: 'box-shadow 0.2s',
+            '&:hover': { boxShadow: 4 },
+          }}
+          onClick={() => navigate('/')}
+        >
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
               <img src={eventVetIcon} alt="" style={{ width: 32, height: 32, marginTop: 4 }} />
@@ -99,7 +137,16 @@ const AboutPage: React.FC = () => {
         </Card>
 
         {/* Medicine Events */}
-        <Card sx={{ mb: 2, bgcolor: 'action.hover' }}>
+        <Card
+          sx={{
+            mb: 2,
+            bgcolor: 'action.hover',
+            cursor: 'pointer',
+            transition: 'box-shadow 0.2s',
+            '&:hover': { boxShadow: 4 },
+          }}
+          onClick={() => navigate('/')}
+        >
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
               <img src={eventMedicineIcon} alt="" style={{ width: 32, height: 32, marginTop: 4 }} />

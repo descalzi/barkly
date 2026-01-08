@@ -11,7 +11,6 @@ import {
   ListItemAvatar,
   Avatar,
   IconButton,
-  Fab,
   Paper,
   Alert,
   Dialog,
@@ -21,7 +20,6 @@ import {
   DialogActions,
   Button,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
 import MedicationIcon from '@mui/icons-material/Medication';
 import { useDogs } from '../hooks/useDogs';
 import { useVets } from '../hooks/useVets';
@@ -410,7 +408,10 @@ const SetupPage: React.FC = () => {
                         <img src={eventPooIcon} alt="Poo" style={{ width: 24, height: 24 }} />
                       </Avatar>
                     </ListItemAvatar>
-                    <ListItemText primary="Poo" secondary="Track bowel movements and quality" />
+                    <ListItemText
+                      primary="Poo"
+                      secondary="Track bowel movements and quality (based on Purina Faecal Scoring chart)"
+                    />
                   </ListItem>
                   <ListItem>
                     <ListItemAvatar>
@@ -479,25 +480,34 @@ const SetupPage: React.FC = () => {
         </TabPanel>
       </Paper>
 
-      {/* Floating Action Button */}
-      <Fab
+      {/* Add Button */}
+      <Button
+        variant="contained"
         color="primary"
-        aria-label="add"
-        sx={{
-          position: 'fixed',
-          bottom: 80,
-          right: 16,
-          boxShadow: '0px 8px 24px rgba(255,138,91,0.4)',
-        }}
+        size="large"
+        startIcon={<img src={iconOk} alt="" style={{ width: 24, height: 24 }} />}
         onClick={() => {
           if (activeTab === 0) handleAddDog();
           else if (activeTab === 3) handleAddCustomEvent();
           else if (activeTab === 1) handleAddVet();
           else if (activeTab === 2) handleAddMedicine();
         }}
+        sx={{
+          position: 'fixed',
+          bottom: 80,
+          right: 16,
+          boxShadow: '0px 8px 24px rgba(255,138,91,0.4)',
+          px: 3,
+          py: 1.5,
+          fontSize: '1rem',
+          fontWeight: 600,
+        }}
       >
-        <AddIcon />
-      </Fab>
+        {activeTab === 0 && 'Add Dog'}
+        {activeTab === 1 && 'Add Vet'}
+        {activeTab === 2 && 'Add Medicine'}
+        {activeTab === 3 && 'Add Event'}
+      </Button>
 
       {/* Form Dialogs */}
       <DogFormDialog

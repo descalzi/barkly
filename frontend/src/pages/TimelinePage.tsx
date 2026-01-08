@@ -11,9 +11,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  SpeedDial,
-  SpeedDialAction,
-  SpeedDialIcon,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -60,6 +57,7 @@ import nightIcon from '../assets/night.png';
 import iconOk from '../assets/icon_ok.png';
 import iconCancel from '../assets/icon_cancel.png';
 import dogSpinner from '../assets/dog_spinner.gif';
+import { Stack } from '@mui/material';
 
 // Unified timeline item type
 type TimelineItem = {
@@ -508,28 +506,64 @@ const TimelinePage: React.FC = () => {
         </Timeline>
       )}
 
-      {/* Speed Dial FAB */}
-      <SpeedDial
-        ariaLabel="Add event"
-        sx={{ position: 'fixed', bottom: 80, right: 16 }}
-        icon={<SpeedDialIcon />}
+      {/* Add Event Buttons */}
+      <Stack
+        spacing={1.5}
+        sx={{
+          position: 'fixed',
+          bottom: 80,
+          right: 16,
+        }}
       >
-        <SpeedDialAction
-          icon={<img src={eventHealthIcon} alt="Health Event" style={{ width: 20, height: 20 }} />}
-          tooltipTitle="Health Event"
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          startIcon={<img src={eventHealthIcon} alt="" style={{ width: 20, height: 20 }} />}
           onClick={() => handleAddEvent('event')}
-        />
-        <SpeedDialAction
-          icon={<img src={eventVetIcon} alt="Vet Visit" style={{ width: 20, height: 20 }} />}
-          tooltipTitle="Vet Visit"
+          sx={{
+            boxShadow: '0px 8px 24px rgba(255,138,91,0.4)',
+            px: 2.5,
+            py: 1.25,
+            fontWeight: 600,
+            minWidth: 180,
+          }}
+        >
+          Health Event
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          startIcon={<img src={eventVetIcon} alt="" style={{ width: 20, height: 20 }} />}
           onClick={() => handleAddEvent('vet_visit')}
-        />
-        <SpeedDialAction
-          icon={<img src={eventMedicineIcon} alt="Medicine" style={{ width: 20, height: 20 }} />}
-          tooltipTitle="Medicine"
+          sx={{
+            boxShadow: '0px 8px 24px rgba(255,138,91,0.4)',
+            px: 2.5,
+            py: 1.25,
+            fontWeight: 600,
+            minWidth: 180,
+          }}
+        >
+          Vet Visit
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          startIcon={<img src={eventMedicineIcon} alt="" style={{ width: 20, height: 20 }} />}
           onClick={() => handleAddEvent('medicine_event')}
-        />
-      </SpeedDial>
+          sx={{
+            boxShadow: '0px 8px 24px rgba(255,138,91,0.4)',
+            px: 2.5,
+            py: 1.25,
+            fontWeight: 600,
+            minWidth: 180,
+          }}
+        >
+          Medicine
+        </Button>
+      </Stack>
 
       {/* Form Dialogs */}
       <EventFormDialog

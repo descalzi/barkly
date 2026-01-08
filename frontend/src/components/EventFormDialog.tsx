@@ -57,7 +57,7 @@ const EventFormDialog: React.FC<EventFormDialogProps> = ({
   const [selectedEventOption, setSelectedEventOption] = useState<string>(''); // Combined selector
   const [date, setDate] = useState('');
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>(TimeOfDay.MORNING);
-  const [pooQuality, setPooQuality] = useState<number>(4);
+  const [pooQuality, setPooQuality] = useState<number>(2);
   const [vomitQuality, setVomitQuality] = useState<VomitQuality>(VomitQuality.FOOD);
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -77,7 +77,7 @@ const EventFormDialog: React.FC<EventFormDialogProps> = ({
       }
       setDate(event.date.split('T')[0]);
       setTimeOfDay(event.time_of_day);
-      setPooQuality(event.poo_quality || 4);
+      setPooQuality(event.poo_quality || 2);
       setVomitQuality(event.vomit_quality || VomitQuality.FOOD);
       setNotes(event.notes || '');
     } else {
@@ -87,7 +87,7 @@ const EventFormDialog: React.FC<EventFormDialogProps> = ({
       setSelectedEventOption(EventType.POO);
       setDate(new Date().toISOString().split('T')[0]);
       setTimeOfDay(TimeOfDay.MORNING);
-      setPooQuality(4);
+      setPooQuality(2);
       setVomitQuality(VomitQuality.FOOD);
       setNotes('');
     }
@@ -258,7 +258,7 @@ const EventFormDialog: React.FC<EventFormDialogProps> = ({
           {eventType === EventType.POO && (
             <Box>
               <Typography variant="body2" gutterBottom>
-                Poo Quality (1 = liquid, 7 = hard)
+                Poo Quality (1 = very hard, 7 = watery)
               </Typography>
               <Rating
                 value={pooQuality}
