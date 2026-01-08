@@ -97,6 +97,10 @@ const TimelinePage: React.FC = () => {
   const [validationDialogOpen, setValidationDialogOpen] = useState(false);
   const [validationMessage, setValidationMessage] = useState('');
 
+  // Details dialog
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<TimelineItem | null>(null);
+
   // Combine all items into unified timeline and group by date
   const timelineItems = useMemo(() => {
     const items: TimelineItem[] = [
@@ -176,24 +180,37 @@ const TimelinePage: React.FC = () => {
     else if (type === 'medicine_event') setMedicineEventDialogOpen(true);
   };
 
-  const handleEditItem = (item: TimelineItem) => {
+  const handleItemClick = (item: TimelineItem) => {
+    setSelectedItem(item);
+    setDetailsDialogOpen(true);
+  };
+
+  const handleEditFromDetails = () => {
+    if (!selectedItem) return;
+
+    setDetailsDialogOpen(false);
     setDialogMode('edit');
-    if (item.type === 'event') {
-      setEditingEvent(item.data as Event);
+
+    if (selectedItem.type === 'event') {
+      setEditingEvent(selectedItem.data as Event);
       setEventDialogOpen(true);
-    } else if (item.type === 'vet_visit') {
-      setEditingVetVisit(item.data as VetVisit);
+    } else if (selectedItem.type === 'vet_visit') {
+      setEditingVetVisit(selectedItem.data as VetVisit);
       setVetVisitDialogOpen(true);
-    } else if (item.type === 'medicine_event') {
-      setEditingMedicineEvent(item.data as MedicineEvent);
+    } else if (selectedItem.type === 'medicine_event') {
+      setEditingMedicineEvent(selectedItem.data as MedicineEvent);
       setMedicineEventDialogOpen(true);
     }
   };
 
-  const handleDeleteClick = (type: 'event' | 'vet_visit' | 'medicine_event', id: string) => {
-    setDeleteTarget({ type, id });
+  const handleDeleteFromDetails = () => {
+    if (!selectedItem) return;
+
+    setDetailsDialogOpen(false);
+    setDeleteTarget({ type: selectedItem.type, id: selectedItem.id });
     setDeleteDialogOpen(true);
   };
+
 
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
@@ -258,25 +275,26 @@ const TimelinePage: React.FC = () => {
       const event = item.data as Event;
 
       return (
-        <Card key={item.id} sx={{ mb: 2, boxShadow: 2, '&:hover': { boxShadow: 4 } }}>
+        <Card
+          key={item.id}
+          sx={{
+            mb: 2,
+            boxShadow: 2,
+            cursor: 'pointer',
+            '&:hover': { boxShadow: 4 }
+          }}
+          onClick={() => handleItemClick(item)}
+        >
           <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
               <Typography variant="subtitle1" fontWeight={600}>
                 {event.custom_event_id ? getCustomEventName(event.custom_event_id) : event.event_type}
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Chip
-                  icon={<img src={getTimeOfDayIcon(event.time_of_day)} alt="" style={{ width: 16, height: 16 }} />}
-                  label={event.time_of_day}
-                  size="small"
-                />
-                <IconButton size="small" onClick={() => handleEditItem(item)}>
-                  <img src={editIcon} alt="Edit" style={{ width: 18, height: 18 }} />
-                </IconButton>
-                <IconButton size="small" onClick={() => handleDeleteClick('event', item.id)}>
-                  <img src={deleteIcon} alt="Delete" style={{ width: 18, height: 18 }} />
-                </IconButton>
-              </Box>
+              <Chip
+                icon={<img src={getTimeOfDayIcon(event.time_of_day)} alt="" style={{ width: 16, height: 16 }} />}
+                label={event.time_of_day}
+                size="small"
+              />
             </Box>
             <Typography variant="body2" color="text.secondary">
               {getDogName(event.dog_id)}
@@ -309,25 +327,26 @@ const TimelinePage: React.FC = () => {
     } else if (item.type === 'vet_visit') {
       const vetVisit = item.data as VetVisit;
       return (
-        <Card key={item.id} sx={{ mb: 2, boxShadow: 2, '&:hover': { boxShadow: 4 } }}>
+        <Card
+          key={item.id}
+          sx={{
+            mb: 2,
+            boxShadow: 2,
+            cursor: 'pointer',
+            '&:hover': { boxShadow: 4 }
+          }}
+          onClick={() => handleItemClick(item)}
+        >
           <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
               <Typography variant="subtitle1" fontWeight={600}>
                 Vet Visit
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Chip
-                  icon={<img src={getTimeOfDayIcon(vetVisit.time_of_day)} alt="" style={{ width: 16, height: 16 }} />}
-                  label={vetVisit.time_of_day}
-                  size="small"
-                />
-                <IconButton size="small" onClick={() => handleEditItem(item)}>
-                  <img src={editIcon} alt="Edit" style={{ width: 18, height: 18 }} />
-                </IconButton>
-                <IconButton size="small" onClick={() => handleDeleteClick('vet_visit', item.id)}>
-                  <img src={deleteIcon} alt="Delete" style={{ width: 18, height: 18 }} />
-                </IconButton>
-              </Box>
+              <Chip
+                icon={<img src={getTimeOfDayIcon(vetVisit.time_of_day)} alt="" style={{ width: 16, height: 16 }} />}
+                label={vetVisit.time_of_day}
+                size="small"
+              />
             </Box>
             <Typography variant="body2" color="text.secondary">
               {getDogName(vetVisit.dog_id)} • {getVetName(vetVisit.vet_id)}
@@ -343,25 +362,26 @@ const TimelinePage: React.FC = () => {
     } else if (item.type === 'medicine_event') {
       const medicineEvent = item.data as MedicineEvent;
       return (
-        <Card key={item.id} sx={{ mb: 2, boxShadow: 2, '&:hover': { boxShadow: 4 } }}>
+        <Card
+          key={item.id}
+          sx={{
+            mb: 2,
+            boxShadow: 2,
+            cursor: 'pointer',
+            '&:hover': { boxShadow: 4 }
+          }}
+          onClick={() => handleItemClick(item)}
+        >
           <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
               <Typography variant="subtitle1" fontWeight={600}>
                 {getMedicineName(medicineEvent.medicine_id)}
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Chip
-                  icon={<img src={getTimeOfDayIcon(medicineEvent.time_of_day)} alt="" style={{ width: 16, height: 16 }} />}
-                  label={medicineEvent.time_of_day}
-                  size="small"
-                />
-                <IconButton size="small" onClick={() => handleEditItem(item)}>
-                  <img src={editIcon} alt="Edit" style={{ width: 18, height: 18 }} />
-                </IconButton>
-                <IconButton size="small" onClick={() => handleDeleteClick('medicine_event', item.id)}>
-                  <img src={deleteIcon} alt="Delete" style={{ width: 18, height: 18 }} />
-                </IconButton>
-              </Box>
+              <Chip
+                icon={<img src={getTimeOfDayIcon(medicineEvent.time_of_day)} alt="" style={{ width: 16, height: 16 }} />}
+                label={medicineEvent.time_of_day}
+                size="small"
+              />
             </Box>
             <Typography variant="body2" color="text.secondary">
               {getDogName(medicineEvent.dog_id)} • {medicineEvent.dosage} dosage
@@ -660,6 +680,162 @@ const TimelinePage: React.FC = () => {
             startIcon={<img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
           >
             OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Event Details Dialog */}
+      <Dialog open={detailsDialogOpen} onClose={() => setDetailsDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          {selectedItem && (() => {
+            const getDogName = (dogId: string) => dogs.find(d => d.id === dogId)?.name || 'Unknown';
+            const getVetName = (vetId: string) => vets.find(v => v.id === vetId)?.name || 'Unknown';
+            const getMedicineName = (medicineId: string) => medicines.find(m => m.id === medicineId)?.name || 'Unknown';
+            const getCustomEventName = (customEventId: string) => customEvents.find(ce => ce.id === customEventId)?.name || 'Unknown';
+
+            if (selectedItem.type === 'event') {
+              const event = selectedItem.data as Event;
+              const eventName = event.custom_event_id ? getCustomEventName(event.custom_event_id) : event.event_type;
+              return `${getDogName(event.dog_id)}'s ${eventName} event`;
+            } else if (selectedItem.type === 'vet_visit') {
+              const vetVisit = selectedItem.data as VetVisit;
+              return `${getDogName(vetVisit.dog_id)}'s Vet Visit`;
+            } else if (selectedItem.type === 'medicine_event') {
+              const medicineEvent = selectedItem.data as MedicineEvent;
+              return `${getDogName(medicineEvent.dog_id)}'s ${getMedicineName(medicineEvent.medicine_id)}`;
+            }
+            return 'Event Details';
+          })()}
+        </DialogTitle>
+        <DialogContent>
+          {selectedItem && (() => {
+            const getVetName = (vetId: string) => vets.find(v => v.id === vetId)?.name || 'Unknown';
+            const getTimeOfDayIcon = (timeOfDay: TimeOfDay) => {
+              switch (timeOfDay) {
+                case TimeOfDay.MORNING: return morningIcon;
+                case TimeOfDay.AFTERNOON: return afternoonIcon;
+                case TimeOfDay.EVENING: return eveningIcon;
+                case TimeOfDay.OVERNIGHT: return nightIcon;
+                default: return morningIcon;
+              }
+            };
+
+            if (selectedItem.type === 'event') {
+              const event = selectedItem.data as Event;
+              return (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Date</Typography>
+                    <Typography variant="body1">{new Date(event.date).toLocaleDateString()}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Time of Day</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                      <img src={getTimeOfDayIcon(event.time_of_day)} alt="" style={{ width: 24, height: 24 }} />
+                      <Typography variant="body1">{event.time_of_day}</Typography>
+                    </Box>
+                  </Box>
+                  {event.event_type === EventType.POO && event.poo_quality && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">Poo Quality</Typography>
+                      <Box sx={{ display: 'flex', gap: 0.25, mt: 0.5 }}>
+                        {Array.from({ length: 7 }, (_, i) => (
+                          <img
+                            key={i}
+                            src={i < event.poo_quality! ? eventPooIcon : eventPooEmptyIcon}
+                            alt=""
+                            style={{ width: 20, height: 20 }}
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
+                  {event.event_type === EventType.VOMIT && event.vomit_quality && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">Vomit Quality</Typography>
+                      <Typography variant="body1">{event.vomit_quality}</Typography>
+                    </Box>
+                  )}
+                  {event.notes && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">Notes</Typography>
+                      <Typography variant="body1">{event.notes}</Typography>
+                    </Box>
+                  )}
+                </Box>
+              );
+            } else if (selectedItem.type === 'vet_visit') {
+              const vetVisit = selectedItem.data as VetVisit;
+              return (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Veterinarian</Typography>
+                    <Typography variant="body1">{getVetName(vetVisit.vet_id)}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Date</Typography>
+                    <Typography variant="body1">{new Date(vetVisit.date).toLocaleDateString()}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Time of Day</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                      <img src={getTimeOfDayIcon(vetVisit.time_of_day)} alt="" style={{ width: 24, height: 24 }} />
+                      <Typography variant="body1">{vetVisit.time_of_day}</Typography>
+                    </Box>
+                  </Box>
+                  {vetVisit.notes && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">Notes</Typography>
+                      <Typography variant="body1">{vetVisit.notes}</Typography>
+                    </Box>
+                  )}
+                </Box>
+              );
+            } else if (selectedItem.type === 'medicine_event') {
+              const medicineEvent = selectedItem.data as MedicineEvent;
+              return (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Dosage</Typography>
+                    <Typography variant="body1">{medicineEvent.dosage}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Date</Typography>
+                    <Typography variant="body1">{new Date(medicineEvent.date).toLocaleDateString()}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Time of Day</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                      <img src={getTimeOfDayIcon(medicineEvent.time_of_day)} alt="" style={{ width: 24, height: 24 }} />
+                      <Typography variant="body1">{medicineEvent.time_of_day}</Typography>
+                    </Box>
+                  </Box>
+                  {medicineEvent.notes && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">Notes</Typography>
+                      <Typography variant="body1">{medicineEvent.notes}</Typography>
+                    </Box>
+                  )}
+                </Box>
+              );
+            }
+            return null;
+          })()}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleDeleteFromDetails}
+            color="error"
+            startIcon={<img src={deleteIcon} alt="" style={{ width: 20, height: 20 }} />}
+          >
+            Delete
+          </Button>
+          <Button
+            onClick={handleEditFromDetails}
+            variant="contained"
+            startIcon={<img src={editIcon} alt="" style={{ width: 20, height: 20 }} />}
+          >
+            Edit
           </Button>
         </DialogActions>
       </Dialog>
