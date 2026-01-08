@@ -56,6 +56,7 @@ import eveningIcon from '../assets/evening.png';
 import nightIcon from '../assets/night.png';
 import iconOk from '../assets/icon_ok.png';
 import iconCancel from '../assets/icon_cancel.png';
+import iconWarning from '../assets/icon_warning.png';
 import dogSpinner from '../assets/dog_spinner.gif';
 import { Stack } from '@mui/material';
 
@@ -91,6 +92,10 @@ const TimelinePage: React.FC = () => {
   // Delete confirmation
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'event' | 'vet_visit' | 'medicine_event'; id: string } | null>(null);
+
+  // Validation dialog
+  const [validationDialogOpen, setValidationDialogOpen] = useState(false);
+  const [validationMessage, setValidationMessage] = useState('');
 
   // Combine all items into unified timeline and group by date
   const timelineItems = useMemo(() => {
@@ -148,6 +153,19 @@ const TimelinePage: React.FC = () => {
 
   // Handlers
   const handleAddEvent = (type: 'event' | 'vet_visit' | 'medicine_event') => {
+    // Validate that required data exists
+    if (type === 'vet_visit' && vets.length === 0) {
+      setValidationMessage('You need to create a Vet first in the Setup page');
+      setValidationDialogOpen(true);
+      return;
+    }
+
+    if (type === 'medicine_event' && medicines.length === 0) {
+      setValidationMessage('You need to create a Medicine first in the Setup page');
+      setValidationDialogOpen(true);
+      return;
+    }
+
     setEditingEvent(null);
     setEditingVetVisit(null);
     setEditingMedicineEvent(null);
@@ -621,6 +639,27 @@ const TimelinePage: React.FC = () => {
             startIcon={<img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
           >
             Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Validation Dialog */}
+      <Dialog open={validationDialogOpen} onClose={() => setValidationDialogOpen(false)}>
+        <DialogContent sx={{ pt: 4, pb: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, textAlign: 'center' }}>
+            <img src={iconWarning} alt="" style={{ width: 60, height: 60 }} />
+            <DialogContentText sx={{ fontSize: '1rem' }}>
+              {validationMessage}
+            </DialogContentText>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+          <Button
+            onClick={() => setValidationDialogOpen(false)}
+            variant="contained"
+            startIcon={<img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
+          >
+            OK
           </Button>
         </DialogActions>
       </Dialog>
