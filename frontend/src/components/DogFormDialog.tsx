@@ -8,7 +8,6 @@ import {
   TextField,
   Box,
   Avatar,
-  Alert,
 } from '@mui/material';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import { Dog, DogCreate, DogUpdate } from '../types';
