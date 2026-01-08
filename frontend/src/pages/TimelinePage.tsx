@@ -57,7 +57,6 @@ import iconOk from '../assets/icon_ok.png';
 import iconCancel from '../assets/icon_cancel.png';
 import iconWarning from '../assets/icon_warning.png';
 import dogSpinner from '../assets/dog_spinner.gif';
-import { Stack } from '@mui/material';
 
 // Unified timeline item type
 type TimelineItem = {
@@ -99,6 +98,9 @@ const TimelinePage: React.FC = () => {
   // Details dialog
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<TimelineItem | null>(null);
+
+  // Add event menu
+  const [addEventMenuOpen, setAddEventMenuOpen] = useState(false);
 
   // Combine all items into unified timeline and group by date
   const timelineItems = useMemo(() => {
@@ -156,6 +158,9 @@ const TimelinePage: React.FC = () => {
 
   // Handlers
   const handleAddEvent = (type: 'event' | 'vet_visit' | 'medicine_event') => {
+    // Collapse menu
+    setAddEventMenuOpen(false);
+
     // Validate that required data exists
     if (type === 'vet_visit' && vets.length === 0) {
       setValidationMessage('You need to create a Vet first in the Setup page');
@@ -544,63 +549,127 @@ const TimelinePage: React.FC = () => {
       )}
 
       {/* Add Event Buttons */}
-      <Stack
-        spacing={1.5}
+      <Box
         sx={{
           position: 'fixed',
           bottom: 80,
           right: 16,
+          backgroundColor: 'transparent !important',
         }}
       >
+        {/* Backdrop to close menu */}
+        {addEventMenuOpen && (
+          <Box
+            onClick={() => setAddEventMenuOpen(false)}
+            sx={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 1,
+            }}
+          />
+        )}
+
+        {/* Event type buttons */}
+        <Box
+          sx={{
+            position: 'relative',
+            zIndex: 2,
+            mb: 1.5,
+            display: 'flex',
+            flexDirection: 'column',
+            pointerEvents: addEventMenuOpen ? 'auto' : 'none',
+          }}
+        >
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            startIcon={<img src={eventHealthIcon} alt="" style={{ width: 20, height: 20 }} />}
+            onClick={() => handleAddEvent('event')}
+            sx={{
+              boxShadow: '0px 8px 24px rgba(255,138,91,0.4)',
+              px: 2.5,
+              py: 1.25,
+              fontWeight: 600,
+              minWidth: 180,
+              mb: 1.5,
+              opacity: addEventMenuOpen ? 1 : 0,
+              transform: addEventMenuOpen ? 'translateY(0)' : 'translateY(20px)',
+              transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
+            }}
+          >
+            Health Event
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            startIcon={<img src={eventVetIcon} alt="" style={{ width: 20, height: 20 }} />}
+            onClick={() => handleAddEvent('vet_visit')}
+            sx={{
+              boxShadow: '0px 8px 24px rgba(255,138,91,0.4)',
+              px: 2.5,
+              py: 1.25,
+              fontWeight: 600,
+              minWidth: 180,
+              mb: 1.5,
+              opacity: addEventMenuOpen ? 1 : 0,
+              transform: addEventMenuOpen ? 'translateY(0)' : 'translateY(20px)',
+              transition: 'opacity 0.3s ease-in-out 0.05s, transform 0.3s ease-in-out 0.05s',
+            }}
+          >
+            Vet Visit
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            startIcon={<img src={eventMedicineIcon} alt="" style={{ width: 20, height: 20 }} />}
+            onClick={() => handleAddEvent('medicine_event')}
+            sx={{
+              boxShadow: '0px 8px 24px rgba(255,138,91,0.4)',
+              px: 2.5,
+              py: 1.25,
+              fontWeight: 600,
+              minWidth: 180,
+              opacity: addEventMenuOpen ? 1 : 0,
+              transform: addEventMenuOpen ? 'translateY(0)' : 'translateY(20px)',
+              transition: 'opacity 0.3s ease-in-out 0.1s, transform 0.3s ease-in-out 0.1s',
+            }}
+          >
+            Medicine
+          </Button>
+        </Box>
+
+        {/* Main Add Event button */}
         <Button
           variant="contained"
           color="primary"
           size="large"
-          startIcon={<img src={eventHealthIcon} alt="" style={{ width: 20, height: 20 }} />}
-          onClick={() => handleAddEvent('event')}
+          startIcon={<img src={iconOk} alt="" style={{ width: 24, height: 24 }} />}
+          onClick={() => setAddEventMenuOpen(!addEventMenuOpen)}
           sx={{
+            position: 'relative',
+            zIndex: 2,
             boxShadow: '0px 8px 24px rgba(255,138,91,0.4)',
-            px: 2.5,
-            py: 1.25,
+            px: 3,
+            py: 1.5,
+            fontSize: '1rem',
             fontWeight: 600,
             minWidth: 180,
+            transform: addEventMenuOpen ? 'scale(0.7)' : 'scale(1)',
+            transition: 'transform 0.3s ease-in-out',
+            '&:hover': {
+              transform: addEventMenuOpen ? 'scale(0.7)' : 'scale(1)',
+            },
           }}
         >
-          Health Event
+          Add Event
         </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          startIcon={<img src={eventVetIcon} alt="" style={{ width: 20, height: 20 }} />}
-          onClick={() => handleAddEvent('vet_visit')}
-          sx={{
-            boxShadow: '0px 8px 24px rgba(255,138,91,0.4)',
-            px: 2.5,
-            py: 1.25,
-            fontWeight: 600,
-            minWidth: 180,
-          }}
-        >
-          Vet Visit
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          startIcon={<img src={eventMedicineIcon} alt="" style={{ width: 20, height: 20 }} />}
-          onClick={() => handleAddEvent('medicine_event')}
-          sx={{
-            boxShadow: '0px 8px 24px rgba(255,138,91,0.4)',
-            px: 2.5,
-            py: 1.25,
-            fontWeight: 600,
-            minWidth: 180,
-          }}
-        >
-          Medicine
-        </Button>
-      </Stack>
+      </Box>
 
       {/* Form Dialogs */}
       <EventFormDialog
