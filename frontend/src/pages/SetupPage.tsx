@@ -216,7 +216,7 @@ const SetupPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 3, mb: 10 }}>
+    <Container maxWidth="lg" sx={{ mt: 2, mb: 10 }}>
       <Typography variant="h3" sx={{ fontWeight: 600, fontFamily: '"Baloo 2", Roboto' }}>
         Setup
       </Typography>

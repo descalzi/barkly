@@ -508,7 +508,7 @@ const TimelinePage: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 2, mb: 8, px: { xs: 2, sm: 3 } }}>
+    <Container maxWidth="lg" sx={{ mt: 1, mb: 8, px: { xs: 2, sm: 3 } }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
         <Typography variant="h3" sx={{ fontWeight: 600, fontFamily: '"Baloo 2", Roboto' }}>
           Timeline
