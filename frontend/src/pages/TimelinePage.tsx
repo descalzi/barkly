@@ -359,27 +359,29 @@ const TimelinePage: React.FC = () => {
         <Card
           key={item.id}
           sx={{
-            mb: 2,
+            mb: 1.5,
             boxShadow: 2,
             cursor: 'pointer',
             '&:hover': { boxShadow: 4 }
           }}
           onClick={() => handleItemClick(item)}
         >
-          <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
+          <CardContent sx={{ py: 1.25, px: 1.75, '&:last-child': { pb: 1.25 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="subtitle1" fontWeight={600}>
-                {event.custom_event_id ? getCustomEventName(event.custom_event_id) : event.event_type}
-              </Typography>
+              <Box>
+                <Typography variant="subtitle1" fontWeight={600} component="span">
+                  {event.custom_event_id ? getCustomEventName(event.custom_event_id) : event.event_type}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" component="span" sx={{ ml: 1 }}>
+                  {getDogName(event.dog_id)}
+                </Typography>
+              </Box>
               <Chip
                 icon={<img src={getTimeOfDayIcon(event.time_of_day)} alt="" style={{ width: 16, height: 16 }} />}
                 label={event.time_of_day}
                 size="small"
               />
             </Box>
-            <Typography variant="body2" color="text.secondary">
-              {getDogName(event.dog_id)}
-            </Typography>
             {event.event_type === EventType.POO && event.poo_quality && (
               <Box sx={{ mt: 0.5, display: 'flex', gap: 0.25 }}>
                 {Array.from({ length: 7 }, (_, i) => (
@@ -411,26 +413,31 @@ const TimelinePage: React.FC = () => {
         <Card
           key={item.id}
           sx={{
-            mb: 2,
+            mb: 1.5,
             boxShadow: 2,
             cursor: 'pointer',
             '&:hover': { boxShadow: 4 }
           }}
           onClick={() => handleItemClick(item)}
         >
-          <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
+          <CardContent sx={{ py: 1.25, px: 1.75, '&:last-child': { pb: 1.25 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="subtitle1" fontWeight={600}>
-                Vet Visit
-              </Typography>
+              <Box>
+                <Typography variant="subtitle1" fontWeight={600} component="span">
+                  Vet Visit
+                </Typography>
+                <Typography variant="body2" color="text.secondary" component="span" sx={{ ml: 1 }}>
+                  {getDogName(vetVisit.dog_id)}
+                </Typography>
+              </Box>
               <Chip
                 icon={<img src={getTimeOfDayIcon(vetVisit.time_of_day)} alt="" style={{ width: 16, height: 16 }} />}
                 label={vetVisit.time_of_day}
                 size="small"
               />
             </Box>
-            <Typography variant="body2" color="text.secondary">
-              {getDogName(vetVisit.dog_id)} • {getVetName(vetVisit.vet_id)}
+            <Typography variant="body2" sx={{ mt: 0.5 }}>
+              {getVetName(vetVisit.vet_id)}
             </Typography>
             {vetVisit.notes && (
               <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontStyle: 'italic' }}>
@@ -446,27 +453,29 @@ const TimelinePage: React.FC = () => {
         <Card
           key={item.id}
           sx={{
-            mb: 2,
+            mb: 1.5,
             boxShadow: 2,
             cursor: 'pointer',
             '&:hover': { boxShadow: 4 }
           }}
           onClick={() => handleItemClick(item)}
         >
-          <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
+          <CardContent sx={{ py: 1.25, px: 1.75, '&:last-child': { pb: 1.25 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="subtitle1" fontWeight={600}>
-                {getMedicineName(medicineEvent.medicine_id)}
-              </Typography>
+              <Box>
+                <Typography variant="subtitle1" fontWeight={600} component="span">
+                  {getMedicineName(medicineEvent.medicine_id)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" component="span" sx={{ ml: 1 }}>
+                  {getDogName(medicineEvent.dog_id)} • {medicineEvent.dosage} dosage
+                </Typography>
+              </Box>
               <Chip
                 icon={<img src={getTimeOfDayIcon(medicineEvent.time_of_day)} alt="" style={{ width: 16, height: 16 }} />}
                 label={medicineEvent.time_of_day}
                 size="small"
               />
             </Box>
-            <Typography variant="body2" color="text.secondary">
-              {getDogName(medicineEvent.dog_id)} • {medicineEvent.dosage} dosage
-            </Typography>
             {medicineEvent.notes && (
               <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontStyle: 'italic' }}>
                 {medicineEvent.notes}
@@ -481,8 +490,8 @@ const TimelinePage: React.FC = () => {
 
   if (dogs.length === 0 && !dogsLoading) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 10 }}>
-        <Typography variant="h4" gutterBottom fontWeight={600}>
+      <Container maxWidth="lg" sx={{ mt: 2, mb: 8, px: { xs: 2, sm: 3 } }}>
+        <Typography variant="h3" sx={{ fontWeight: 600, fontFamily: '"Baloo 2", Roboto' }}>
           Timeline
         </Typography>
         <Box sx={{ textAlign: 'center', py: 8 }}>
@@ -499,9 +508,9 @@ const TimelinePage: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 10 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h4" fontWeight={600}>
+    <Container maxWidth="lg" sx={{ mt: 2, mb: 8, px: { xs: 2, sm: 3 } }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+        <Typography variant="h3" sx={{ fontWeight: 600, fontFamily: '"Baloo 2", Roboto' }}>
           Timeline
         </Typography>
         <IconButton
@@ -535,6 +544,8 @@ const TimelinePage: React.FC = () => {
         </Box>
       ) : (
         <Timeline position="right" sx={{
+          mt: 0,
+          pt: 0,
           '& .MuiTimelineItem-root:before': {
             flex: 0,
             padding: 0,
@@ -558,7 +569,7 @@ const TimelinePage: React.FC = () => {
                   </TimelineDot>
                   <TimelineConnector />
                 </TimelineSeparator>
-                <TimelineContent sx={{ py: '12px', px: 2 }}>
+                <TimelineContent sx={{ py: '8px', px: 1.5 }}>
                   <Typography variant="h5" fontWeight={600} color="primary">
                     {dateKey}
                   </Typography>

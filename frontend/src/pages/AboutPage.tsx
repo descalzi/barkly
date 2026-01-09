@@ -25,10 +25,10 @@ const AboutPage: React.FC = () => {
         <img src={helloImage} alt="Welcome to Barkly" style={{ width: '200px', height: 'auto' }} />
       </Box>
 
-      <Typography variant="h4" gutterBottom textAlign="center" fontWeight={600}>
+      <Typography variant="h3"  gutterBottom textAlign="center" sx={{ fontWeight: 600, fontFamily: '"Baloo 2", Roboto' }}>
         Welcome to Barkly!
       </Typography>
-      <Typography variant="body1" textAlign="center" color="text.secondary" paragraph>
+      <Typography variant="body1" textAlign="center" color="text.secondary" sx={{ fontWeight: 500, fontFamily: '"Baloo 2", Roboto' }}>
         Your dog's health companion - track events, visits, and medications all in one place
       </Typography>
 
