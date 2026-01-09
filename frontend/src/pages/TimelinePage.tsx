@@ -6,17 +6,22 @@ import {
   Card,
   CardContent,
   Chip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
   Button,
+  IconButton,
+  Badge,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Timeline,
   TimelineItem,
@@ -40,6 +45,7 @@ import editIcon from '../assets/edit.png';
 import deleteIcon from '../assets/delete.png';
 import pawIcon64 from '../assets/paw-64.png';
 import calendarNavIcon from '../assets/calendar-nav.png';
+import filterIcon from '../assets/filter.png';
 import eventPooIcon from '../assets/event_poo.png';
 import eventPooEmptyIcon from '../assets/event_poo_empty.png';
 import eventMedicineIcon from '../assets/event_medicine.png';
@@ -67,16 +73,18 @@ type TimelineItem = {
 };
 
 const TimelinePage: React.FC = () => {
-  const [selectedDogId, setSelectedDogId] = useState<string>('all');
+  const [selectedDogIds, setSelectedDogIds] = useState<string[]>([]);
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
 
   // Fetch all data
   const { dogs, loading: dogsLoading } = useDogs();
   const { vets } = useVets();
   const { medicines } = useMedicines();
   const { customEvents } = useCustomEvents();
-  const { events, loading: eventsLoading, createEvent, updateEvent, deleteEvent } = useEvents(selectedDogId === 'all' ? undefined : selectedDogId);
-  const { vetVisits, loading: vetVisitsLoading, createVetVisit, updateVetVisit, deleteVetVisit } = useVetVisits(selectedDogId === 'all' ? undefined : selectedDogId);
-  const { medicineEvents, loading: medicineEventsLoading, createMedicineEvent, updateMedicineEvent, deleteMedicineEvent } = useMedicineEvents(selectedDogId === 'all' ? undefined : selectedDogId);
+  const { events, loading: eventsLoading, createEvent, updateEvent, deleteEvent } = useEvents();
+  const { vetVisits, loading: vetVisitsLoading, createVetVisit, updateVetVisit, deleteVetVisit } = useVetVisits();
+  const { medicineEvents, loading: medicineEventsLoading, createMedicineEvent, updateMedicineEvent, deleteMedicineEvent } = useMedicineEvents();
 
   // Dialog states
   const [eventDialogOpen, setEventDialogOpen] = useState(false);
@@ -102,15 +110,40 @@ const TimelinePage: React.FC = () => {
   // Add event menu
   const [addEventMenuOpen, setAddEventMenuOpen] = useState(false);
 
-  // Combine all items into unified timeline and group by date
+  // Combine all items into unified timeline and filter by dogs and event types
   const timelineItems = useMemo(() => {
-    const items: TimelineItem[] = [
+    let items: TimelineItem[] = [
       ...events.map(e => ({ id: e.id, type: 'event' as const, date: e.date, data: e })),
       ...vetVisits.map(v => ({ id: v.id, type: 'vet_visit' as const, date: v.date, data: v })),
       ...medicineEvents.map(m => ({ id: m.id, type: 'medicine_event' as const, date: m.date, data: m })),
     ];
+
+    // Filter by dogs if any are selected
+    if (selectedDogIds.length > 0) {
+      items = items.filter(item => {
+        const dogId = 'dog_id' in item.data ? item.data.dog_id : '';
+        return selectedDogIds.includes(dogId);
+      });
+    }
+
+    // Filter by event types if any are selected
+    if (selectedEventTypes.length > 0) {
+      items = items.filter(item => {
+        if (item.type === 'event') {
+          const event = item.data as Event;
+          const eventTypeKey = event.custom_event_id ? 'custom_event' : event.event_type;
+          return selectedEventTypes.includes(eventTypeKey || '');
+        } else if (item.type === 'vet_visit') {
+          return selectedEventTypes.includes('vet_visit');
+        } else if (item.type === 'medicine_event') {
+          return selectedEventTypes.includes('medicine_event');
+        }
+        return false;
+      });
+    }
+
     return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [events, vetVisits, medicineEvents]);
+  }, [events, vetVisits, medicineEvents, selectedDogIds, selectedEventTypes]);
 
   // Group items by date
   const groupedByDate = useMemo(() => {
@@ -156,7 +189,51 @@ const TimelinePage: React.FC = () => {
 
   const loading = dogsLoading || eventsLoading || vetVisitsLoading || medicineEventsLoading;
 
+  // Calculate active filter count
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (selectedDogIds.length > 0) count++;
+    if (selectedEventTypes.length > 0) count++;
+    return count;
+  }, [selectedDogIds, selectedEventTypes]);
+
   // Handlers
+  const handleDogToggle = (dogId: string) => {
+    setSelectedDogIds(prev =>
+      prev.includes(dogId)
+        ? prev.filter(id => id !== dogId)
+        : [...prev, dogId]
+    );
+  };
+
+  const handleEventTypeToggle = (eventType: string) => {
+    setSelectedEventTypes(prev =>
+      prev.includes(eventType)
+        ? prev.filter(t => t !== eventType)
+        : [...prev, eventType]
+    );
+  };
+
+  const handleRemoveDogFilter = (dogId: string) => {
+    setSelectedDogIds(prev => prev.filter(id => id !== dogId));
+  };
+
+  const handleRemoveEventTypeFilter = (eventType: string) => {
+    setSelectedEventTypes(prev => prev.filter(t => t !== eventType));
+  };
+
+  const handleClearFilters = () => {
+    setSelectedDogIds([]);
+    setSelectedEventTypes([]);
+  };
+
+  // Get display names for filters
+  const getEventTypeLabel = (eventType: string) => {
+    if (eventType === 'custom_event') return 'Custom Events';
+    if (eventType === 'vet_visit') return 'Vet Visits';
+    if (eventType === 'medicine_event') return 'Medicines';
+    return eventType;
+  };
   const handleAddEvent = (type: 'event' | 'vet_visit' | 'medicine_event') => {
     // Collapse menu
     setAddEventMenuOpen(false);
@@ -423,26 +500,24 @@ const TimelinePage: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 10 }}>
-      <Typography variant="h4" gutterBottom fontWeight={600}>
-        Timeline
-      </Typography>
-
-      {/* Dog Filter */}
-      <FormControl fullWidth sx={{ mt: 3, mb: 3 }}>
-        <InputLabel>Filter by Dog</InputLabel>
-        <Select
-          value={selectedDogId}
-          onChange={(e) => setSelectedDogId(e.target.value)}
-          label="Filter by Dog"
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Typography variant="h4" fontWeight={600}>
+          Timeline
+        </Typography>
+        <IconButton
+          onClick={() => setFilterDialogOpen(true)}
+          sx={{
+            bgcolor: activeFilterCount > 0 ? 'primary.light' : 'transparent',
+            '&:hover': {
+              bgcolor: activeFilterCount > 0 ? 'primary.main' : 'action.hover',
+            },
+          }}
         >
-          <MenuItem value="all">All Dogs</MenuItem>
-          {dogs.map((dog) => (
-            <MenuItem key={dog.id} value={dog.id}>
-              {dog.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+          <Badge badgeContent={activeFilterCount} color="error">
+            <img src={filterIcon} alt="Filter" style={{ width: 24, height: 24 }} />
+          </Badge>
+        </IconButton>
+      </Box>
 
       {/* Timeline */}
       {loading ? (
@@ -680,7 +755,7 @@ const TimelinePage: React.FC = () => {
         mode={dialogMode}
         dogs={dogs}
         customEvents={customEvents}
-        defaultDogId={selectedDogId === 'all' ? undefined : selectedDogId}
+        defaultDogId={selectedDogIds.length === 1 ? selectedDogIds[0] : undefined}
       />
 
       <VetVisitFormDialog
@@ -691,7 +766,7 @@ const TimelinePage: React.FC = () => {
         mode={dialogMode}
         dogs={dogs}
         vets={vets}
-        defaultDogId={selectedDogId === 'all' ? undefined : selectedDogId}
+        defaultDogId={selectedDogIds.length === 1 ? selectedDogIds[0] : undefined}
       />
 
       <MedicineEventFormDialog
@@ -702,7 +777,7 @@ const TimelinePage: React.FC = () => {
         mode={dialogMode}
         dogs={dogs}
         medicines={medicines}
-        defaultDogId={selectedDogId === 'all' ? undefined : selectedDogId}
+        defaultDogId={selectedDogIds.length === 1 ? selectedDogIds[0] : undefined}
       />
 
       {/* Delete Confirmation Dialog */}
@@ -748,6 +823,179 @@ const TimelinePage: React.FC = () => {
             startIcon={<img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
           >
             OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Filter Dialog */}
+      <Dialog open={filterDialogOpen} onClose={() => setFilterDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Filter Timeline</DialogTitle>
+        <DialogContent>
+          {/* Active Filters Display */}
+          {(selectedDogIds.length > 0 || selectedEventTypes.length > 0) && (
+            <Box sx={{
+              mb: 3,
+              mt: 1,
+              p: 2,
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 1,
+              backgroundColor: 'background.default'
+            }}>
+              <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+                Active Filters
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {selectedDogIds.map(dogId => {
+                  const dog = dogs.find(d => d.id === dogId);
+                  return dog ? (
+                    <Chip
+                      key={dogId}
+                      label={dog.name}
+                      size="small"
+                      onDelete={() => handleRemoveDogFilter(dogId)}
+                      color="primary"
+                      variant="outlined"
+                    />
+                  ) : null;
+                })}
+                {selectedEventTypes.map(eventType => (
+                  <Chip
+                    key={eventType}
+                    label={getEventTypeLabel(eventType)}
+                    size="small"
+                    onDelete={() => handleRemoveEventTypeFilter(eventType)}
+                    color="secondary"
+                    variant="outlined"
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
+
+          {/* Dog Filter */}
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="subtitle2" fontWeight={600}>
+                Filter by Dog
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <FormGroup>
+                {dogs.map((dog) => (
+                  <FormControlLabel
+                    key={dog.id}
+                    control={
+                      <Checkbox
+                        checked={selectedDogIds.includes(dog.id)}
+                        onChange={() => handleDogToggle(dog.id)}
+                      />
+                    }
+                    label={dog.name}
+                  />
+                ))}
+              </FormGroup>
+            </AccordionDetails>
+          </Accordion>
+
+          {/* Event Type Filter */}
+          <Accordion sx={{ mt: 2 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="subtitle2" fontWeight={600}>
+                Filter by Event Type
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedEventTypes.includes(EventType.POO)}
+                      onChange={() => handleEventTypeToggle(EventType.POO)}
+                    />
+                  }
+                  label="Poo"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedEventTypes.includes(EventType.VOMIT)}
+                      onChange={() => handleEventTypeToggle(EventType.VOMIT)}
+                    />
+                  }
+                  label="Vomit"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedEventTypes.includes(EventType.ITCHY)}
+                      onChange={() => handleEventTypeToggle(EventType.ITCHY)}
+                    />
+                  }
+                  label="Itchy"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedEventTypes.includes(EventType.INJURY)}
+                      onChange={() => handleEventTypeToggle(EventType.INJURY)}
+                    />
+                  }
+                  label="Injury"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedEventTypes.includes(EventType.OTHER)}
+                      onChange={() => handleEventTypeToggle(EventType.OTHER)}
+                    />
+                  }
+                  label="Other"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedEventTypes.includes('custom_event')}
+                      onChange={() => handleEventTypeToggle('custom_event')}
+                    />
+                  }
+                  label="Custom Events"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedEventTypes.includes('vet_visit')}
+                      onChange={() => handleEventTypeToggle('vet_visit')}
+                    />
+                  }
+                  label="Vet Visits"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedEventTypes.includes('medicine_event')}
+                      onChange={() => handleEventTypeToggle('medicine_event')}
+                    />
+                  }
+                  label="Medicines"
+                />
+              </FormGroup>
+            </AccordionDetails>
+          </Accordion>
+        </DialogContent>
+        <DialogActions >
+          <Button
+            onClick={handleClearFilters}
+            startIcon={<img src={iconCancel} alt="" style={{ width: 20, height: 20 }} />}
+          >
+            Clear All
+          </Button>
+          <Button
+            onClick={() => setFilterDialogOpen(false)}
+            variant="contained"
+            startIcon={<img src={iconOk} alt="" style={{ width: 20, height: 20 }} />}
+          >
+            Apply
           </Button>
         </DialogActions>
       </Dialog>
